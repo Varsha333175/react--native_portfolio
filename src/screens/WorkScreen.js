@@ -21,6 +21,7 @@ export default function WorkExperienceScreen() {
       duration: 'Jan 2020 - Present',
       tagline: 'Building scalable apps and leading teams.',
       description: 'Developed scalable web apps, improved performance by 35%.',
+      emotion: 'happy',
     },
     {
       id: '2',
@@ -30,6 +31,7 @@ export default function WorkExperienceScreen() {
       duration: 'Jul 2018 - Dec 2019',
       tagline: 'Streamlined CI/CD pipelines.',
       description: 'Reduced deployment times by 50%.',
+      emotion: 'neutral',
     },
     {
       id: '3',
@@ -39,6 +41,7 @@ export default function WorkExperienceScreen() {
       duration: 'Jan 2018 - Jun 2018',
       tagline: 'Contributed to core feature development.',
       description: 'Implemented core features, reduced system downtime.',
+      emotion: 'excited',
     },
   ]);
 
@@ -46,7 +49,6 @@ export default function WorkExperienceScreen() {
 
   return (
     <LinearGradient colors={['#1DB954', '#121212']} style={styles.container}>
-      {/* Header Section */}
       <View style={styles.header}>
         <Text style={styles.title}>My Work Experience</Text>
         <Text style={styles.subtitle}>
@@ -54,7 +56,6 @@ export default function WorkExperienceScreen() {
         </Text>
       </View>
 
-      {/* Work Experience List */}
       <FlatList
         data={workExperiences}
         keyExtractor={(item) => item.id}
@@ -80,7 +81,8 @@ export default function WorkExperienceScreen() {
                       })),
                       index,
                       'Work Experience',
-                      'Professional Journey'
+                      'Professional Journey',
+                      item.emotion // Pass emotion here
                     )
               }
             >

@@ -14,11 +14,10 @@ const AudioControlBar = () => {
     playPrevious,
   } = useAudio();
 
-  if (!currentTrack || !isPlaying) return null; // Hide the control bar when nothing is playing
+  if (!currentTrack || !isPlaying) return null;
 
   return (
     <View style={styles.container}>
-      {/* Track Info */}
       <View style={styles.infoContainer}>
         <Text style={styles.playlistSection} numberOfLines={1}>
           {section} - {playlistName}
@@ -31,17 +30,14 @@ const AudioControlBar = () => {
         </Text>
       </View>
 
-      {/* Previous Button */}
       <TouchableOpacity onPress={playPrevious} style={styles.controlButton}>
         <Ionicons name="play-back-circle" size={40} color="#1DB954" />
       </TouchableOpacity>
 
-      {/* Stop Button */}
       <TouchableOpacity onPress={stopTrack} style={styles.controlButton}>
         <Ionicons name="stop-circle" size={40} color="#1DB954" />
       </TouchableOpacity>
 
-      {/* Next Button */}
       <TouchableOpacity onPress={playNext} style={styles.controlButton}>
         <Ionicons name="play-forward-circle" size={40} color="#1DB954" />
       </TouchableOpacity>
@@ -52,7 +48,7 @@ const AudioControlBar = () => {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    bottom: 70, // Adjust height to be above BottomTabNavigator
+    bottom: 70,
     left: 0,
     right: 0,
     flexDirection: 'row',
@@ -62,7 +58,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderTopWidth: 1,
     borderTopColor: '#1DB954',
-    zIndex: 10, // Ensure it stays above other components
+    zIndex: 10,
   },
   infoContainer: {
     flex: 1,
