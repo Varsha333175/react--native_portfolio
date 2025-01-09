@@ -7,7 +7,7 @@ import HomeScreen from '../screens/HomeScreen';
 import ProjectsScreen from '../screens/ProjectsScreen';
 import SkillsScreen from '../screens/SkillsScreen';
 import ContactScreen from '../screens/ContactScreen';
-
+import WorkScreen from '../screens/WorkScreen';
 const Tab = createBottomTabNavigator();
 
 export default function BottomTabNavigator() {
@@ -42,6 +42,7 @@ export default function BottomTabNavigator() {
         <Tab.Screen name="Projects" component={ProjectsScreen} />
         <Tab.Screen name="Skills" component={SkillsScreen} />
         <Tab.Screen name="Contact" component={ContactScreen} />
+        {<Tab.Screen name="Work Exp" component={WorkScreen} />}
       </Tab.Navigator>
     </NavigationContainer>
   );
