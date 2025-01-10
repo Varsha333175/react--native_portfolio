@@ -21,16 +21,18 @@ export default function WorkExperienceImmersive() {
       title: 'Software Engineer',
       company: 'PwC US',
       duration: 'Sep 2021 - Jan 2023',
-      summary:
-        'Architected microservices handling 5M+ transactions daily. Improved performance by 40% with Redis caching and secured privileged accounts with CyberArk PAM.',
-      keyAchievements: [
-        { icon: 'star', text: 'Achieved 100% security compliance' },
-        { icon: 'speedometer', text: 'Reduced API response times by 40%' },
-      ],
-      challenges:
-        'Faced significant performance bottlenecks in APIs, resolved by optimizing database queries and caching strategies.',
-      skills: ['Java', 'Spring Boot', 'AWS', 'Redis', 'CyberArk'],
-      bgColor: ['#1DB954', '#121212'],
+      summary: 'Crafted scalable full-stack solutions, handling 5M+ daily transactions while implementing robust IAM systems with cutting-edge security protocols.',
+keyAchievements: [
+  { icon: 'laptop', text: 'Full Stack Development: Built microservices with Java, Spring Boot, and Angular.' },
+  { icon: 'lock', text: 'IAM Expertise: Deployed CyberArk PAM for 100+ privileged accounts with MFA and RBAC.' },
+  { icon: 'rocket', text: 'Performance Optimization: Boosted API response by 40% with Redis caching.' },
+  { icon: 'cloud', text: 'Cloud Integration: Designed scalable systems on AWS (EC2, RDS, Lambda).' },
+  { icon: 'wrench', text: 'Tech Stack: Java, Spring Boot, Angular, AWS, Redis, CyberArk, Jenkins, Docker.' },
+],
+challenges: 'Faced significant performance bottlenecks in APIs, resolved by optimizing database queries and caching strategies.',
+skills: ['Java', 'Spring Boot', 'Angular', 'AWS', 'Redis', 'CyberArk', 'Jenkins', 'Docker'],
+bgColor: ['#1DB954', '#121212'],
+
     },
     {
       id: '2',
@@ -105,35 +107,36 @@ export default function WorkExperienceImmersive() {
 
         {/* Audio Controls */}
         <TouchableOpacity
-          onPress={() =>
-            currentTrack?.title === workExperiences[currentSlide].title &&
-            isPlaying
-              ? stopTrack()
-              : playTrack(
-                  workExperiences.map((exp) => ({
-                    title: exp.title,
-                    description: exp.summary,
-                    text: `Role: ${exp.title}, Company: ${exp.company}. Achievements: ${exp.keyAchievements.map(
-                      (ach) => ach.text
-                    ).join(', ')}`,
-                  })),
-                  currentSlide,
-                  'Work Experience',
-                  'Professional Journey'
-                )
-          }
-        >
-          <Ionicons
-            name={
-              currentTrack?.title === workExperiences[currentSlide].title &&
-              isPlaying
-                ? 'pause-circle'
-                : 'play-circle'
-            }
-            size={50}
-            color="#FFFFFF"
-          />
-        </TouchableOpacity>
+  onPress={() =>
+    currentTrack?.title === workExperiences[currentSlide].title && isPlaying
+      ? stopTrack()
+      : playTrack(
+          workExperiences.map((exp) => ({
+            title: exp.title,
+            description: exp.summary,
+            text: exp.id === '1'
+              ? `At PwC US, I combined full-stack development expertise and IAM solutions to deliver secure, high-performance systems. On the backend, I developed microservices in Java and Spring Boot, seamlessly integrated with scalable front-end components using Angular. I implemented Redis caching to optimize API response times by 40% and designed efficient database schemas that supported over 5 million daily transactions. As an IAM analyst, I implemented CyberArk PAM for 100+ privileged accounts, securing access with MFA and RBAC, achieving flawless security compliance. I also automated deployment pipelines using Jenkins, Docker, and Kubernetes, reducing release cycles by 30% while maintaining high code quality. My work was driven by the challenge to ensure performance, security, and user-centric design across every layer of the stack.`
+              : exp.id === '2'
+              ? `At DXC Technology, I developed healthcare APIs processing 100K+ records daily, ensuring efficiency and accuracy. I automated IAM workflows, significantly reducing unauthorized access by 50% while enhancing task efficiency by 40%. My contributions involved ensuring seamless data migrations during API transitions and securing data with JWT authentication. I also optimized CI/CD pipelines for faster deployments and greater scalability.`
+              : ``
+          })),
+          currentSlide,
+          'Work Experience',
+          'Professional Journey'
+        )
+  }
+>
+  <Ionicons
+    name={
+      currentTrack?.title === workExperiences[currentSlide].title && isPlaying
+        ? 'pause-circle'
+        : 'play-circle'
+    }
+    size={50}
+    color="#FFFFFF"
+  />
+</TouchableOpacity>
+
       </View>
 
       {/* Navigation */}
