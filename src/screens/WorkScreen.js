@@ -4,16 +4,18 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Image,
-  Animated,
-  ScrollView,
+  Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useAudio } from '../contexts/AudioContext';
 
+const { width } = Dimensions.get('window');
+
 export default function WorkExperienceImmersive() {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isReadMoreVisible, setReadMoreVisible] = useState(false);
+  const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
 
   const workExperiences = [
     {
@@ -21,144 +23,221 @@ export default function WorkExperienceImmersive() {
       title: 'Software Engineer',
       company: 'PwC US',
       duration: 'Sep 2021 - Jan 2023',
-      summary: 'Crafted scalable full-stack solutions, handling 5M+ daily transactions while implementing robust IAM systems with cutting-edge security protocols.',
-keyAchievements: [
-  { icon: 'laptop', text: 'Full Stack Development: Built microservices with Java, Spring Boot, and Angular.' },
-  { icon: 'lock', text: 'IAM Expertise: Deployed CyberArk PAM for 100+ privileged accounts with MFA and RBAC.' },
-  { icon: 'rocket', text: 'Performance Optimization: Boosted API response by 40% with Redis caching.' },
-  { icon: 'cloud', text: 'Cloud Integration: Designed scalable systems on AWS (EC2, RDS, Lambda).' },
-  { icon: 'wrench', text: 'Tech Stack: Java, Spring Boot, Angular, AWS, Redis, CyberArk, Jenkins, Docker.' },
-],
-challenges: 'Faced significant performance bottlenecks in APIs, resolved by optimizing database queries and caching strategies.',
-skills: ['Java', 'Spring Boot', 'Angular', 'AWS', 'Redis', 'CyberArk', 'Jenkins', 'Docker'],
-bgColor: ['#1DB954', '#121212'],
-
-    },
-    {
-      id: '2',
-      title: 'Associate Software Engineer',
-      company: 'DXC Technology',
-      duration: 'Dec 2020 - Sep 2021',
       summary:
-        'Developed healthcare APIs processing 100K+ records daily. Automated IAM workflows and reduced unauthorized access by 50%.',
+        'Crafted scalable full-stack solutions, handling 5M+ daily transactions while implementing robust IAM systems with cutting-edge security protocols.',
       keyAchievements: [
-        { icon: 'lock-closed', text: 'Achieved zero breaches for 12 months' },
-        { icon: 'construct', text: 'Improved task efficiency by 40%' },
+        { icon: 'laptop', text: 'Full Stack Development: Built microservices with Java, Spring Boot, and Angular.' },
+        { icon: 'lock', text: 'IAM Expertise: Deployed CyberArk PAM for 100+ privileged accounts with MFA and RBAC.' },
+        { icon: 'rocket', text: 'Performance Optimization: Boosted API response by 40% with Redis caching.' },
+        { icon: 'cloud', text: 'Cloud Integration: Designed scalable systems on AWS (EC2, RDS, Lambda).' },
+        { icon: 'wrench', text: 'Tech Stack: Java, Spring Boot, Angular, AWS, Redis, CyberArk, Jenkins, Docker.' },
       ],
-      challenges:
-        'Faced data migration risks during API transitions; ensured seamless integration with zero downtime.',
-      skills: ['Node.js', 'PowerShell', 'Angular', 'CI/CD', 'JWT'],
-      bgColor: ['#0f2027', '#2c5364'],
+      detailedDescription: [
+        {
+          title: 'Backend Architecture and Microservices',
+          content: [
+            { text: "At PwC, I built and optimized microservices using ", highlight: false },
+            { text: "Java", highlight: true },
+            { text: " and ", highlight: false },
+            { text: "Spring Boot", highlight: true },
+            { text: ", which handled over 5 million daily transactions with high reliability. I designed RESTful APIs following ", highlight: false },
+            { text: "best practices", highlight: true },
+            { text: " like modularization and loose coupling, ensuring scalability and easy integration across systems. To improve performance, I integrated ", highlight: false },
+            { text: "Redis caching", highlight: true },
+            { text: ", which reduced API response times by ", highlight: false },
+            { text: "40%", highlight: true },
+            { text: ". I also worked on optimizing ", highlight: false },
+            { text: "MySQL databases", highlight: true },
+            { text: ", refining queries and adding indexes to reduce data retrieval times, resulting in a ", highlight: false },
+            { text: "25% improvement", highlight: true },
+            { text: " in efficiency during high traffic periods.", highlight: false },
+          ],
+        },
+        {
+          title: 'Frontend Development',
+          content: [
+            { text: "In the front-end space, I developed dynamic user interfaces using ", highlight: false },
+            { text: "Angular", highlight: true },
+            { text: " and ", highlight: false },
+            { text: "TypeScript", highlight: true },
+            { text: ", with a strong emphasis on reusability and scalability. I implemented a component-based design, which allowed the development team to reuse key elements across the platform, reducing development time. By using ", highlight: false },
+            { text: "HTML5", highlight: true },
+            { text: " and ", highlight: false },
+            { text: "CSS3", highlight: true },
+            { text: " for responsiveness, I enhanced user engagement and accessibility, contributing to a ", highlight: false },
+            { text: "25% increase", highlight: true },
+            { text: " in customer satisfaction. Additionally, I introduced lazy loading techniques to optimize loading times for large-scale single-page applications.", highlight: false },
+          ],
+        },
+        {
+          title: 'Cloud Architecture and Scalability',
+          content: [
+            { text: "I deployed scalable backend services on ", highlight: false },
+            { text: "AWS EC2", highlight: true },
+            { text: " and ", highlight: false },
+            { text: "RDS", highlight: true },
+            { text: ", leveraging auto-scaling groups and multi-AZ setups for fault tolerance and high availability. To handle asynchronous workflows, I designed serverless functions with ", highlight: false },
+            { text: "AWS Lambda", highlight: true },
+            { text: ", which improved processing efficiency while reducing infrastructure costs. Using ", highlight: false },
+            { text: "Amazon CloudWatch", highlight: true },
+            { text: ", I monitored system performance, set up alarms, and troubleshot bottlenecks, ensuring uptime and proactive issue resolution.", highlight: false },
+          ],
+        },
+        {
+          title: 'Identity and Access Management (IAM)',
+          content: [
+            { text: "In my role as an IAM Analyst, I implemented ", highlight: false },
+            { text: "CyberArk PAM", highlight: true },
+            { text: " to manage privileged accounts for 100+ critical users. This included configuring multi-factor authentication (", highlight: false },
+            { text: "MFA", highlight: true },
+            { text: ") and enforcing ", highlight: false },
+            { text: "Role-Based Access Control (RBAC)", highlight: true },
+            { text: " policies to ensure secure access. I worked on designing and integrating ", highlight: false },
+            { text: "OAuth 2.0", highlight: true },
+            { text: " workflows for seamless authentication, enabling single sign-on (SSO) capabilities across enterprise applications.", highlight: false },
+          ],
+        },
+        {
+          title: 'DevOps and CI/CD',
+          content: [
+            { text: "To streamline the development lifecycle, I built CI/CD pipelines using ", highlight: false },
+            { text: "Jenkins", highlight: true },
+            { text: " for automated testing and deployment. I containerized microservices with ", highlight: false },
+            { text: "Docker", highlight: true },
+            { text: ", ensuring consistent environments across development and production stages. I also deployed and managed ", highlight: false },
+            { text: "Kubernetes", highlight: true },
+            { text: " clusters, implementing rolling updates to minimize downtime and improve deployment efficiency.", highlight: false },
+          ],
+        },
+      ],
+      bgColor: ['#1DB954', '#121212'],
+      audioText: `During my time as a Software Engineer at PwC US, I had the opportunity to design and build systems that powered seamless, fault-tolerant workflows for millions of daily transactions. On the backend, I developed robust microservices using Java and Spring Boot, creating RESTful APIs that ensured reliability and scalability. On the frontend, I crafted dynamic user interfaces with React, focusing on reusable components to deliver consistent, responsive experiences across devices.
+
+To handle the massive scale of operations, I architected AWS cloud-native systems using EC2, Lambda, and RDS to process terabytes of data. I optimized storage and retrieval strategies on AWS S3 and DynamoDB, enhancing real-time data access and improving efficiency. My work extended to automating the development lifecycle through CI/CD pipelines built with Jenkins, Docker, and Kubernetes, which streamlined build, test, and deployment processes, cutting down development time significantly.
+
+As a problem-solver, I routinely diagnosed and resolved production issues through root cause analysis and debugging, ensuring system stability and reliability. I also took pride in fostering team collaboration by authoring API documentation and system designs. This effort not only expedited onboarding for new developers but also improved project delivery timelines.
+
+At its core, my work at PwC was about creating scalable, reliable, and user-centric solutions—turning complex challenges into streamlined systems that delivered results.`,
     },
   ];
 
   const { isPlaying, playTrack, stopTrack, currentTrack } = useAudio();
 
-  const handleNextSlide = () => {
-    if (currentSlide < workExperiences.length - 1) {
-      setCurrentSlide(currentSlide + 1);
+  const handleNextSection = () => {
+    if (currentSectionIndex < workExperiences[currentSlide].detailedDescription.length - 1) {
+      setCurrentSectionIndex(currentSectionIndex + 1);
     }
   };
 
-  const handlePreviousSlide = () => {
-    if (currentSlide > 0) {
-      setCurrentSlide(currentSlide - 1);
+  const handlePreviousSection = () => {
+    if (currentSectionIndex > 0) {
+      setCurrentSectionIndex(currentSectionIndex - 1);
     }
+  };
+
+  const handleShowReadMore = () => {
+    setReadMoreVisible(true);
+    setCurrentSectionIndex(0); // Reset to the first subsection
+  };
+
+  const handleHideReadMore = () => {
+    setReadMoreVisible(false);
   };
 
   return (
-    <LinearGradient
-      colors={workExperiences[currentSlide].bgColor}
-      style={styles.container}
-    >
-      {/* Slide Content */}
+    <LinearGradient colors={workExperiences[currentSlide].bgColor} style={styles.container}>
       <View style={styles.slide}>
-        <Text style={styles.title}>
-          {workExperiences[currentSlide].title}
-        </Text>
+        <Text style={styles.title}>{workExperiences[currentSlide].title}</Text>
         <Text style={styles.company}>{workExperiences[currentSlide].company}</Text>
-        <Text style={styles.duration}>
-          {workExperiences[currentSlide].duration}
-        </Text>
+        <Text style={styles.duration}>{workExperiences[currentSlide].duration}</Text>
+        <Text style={styles.summary}>{workExperiences[currentSlide].summary}</Text>
 
-        {/* Summary */}
-        <Text style={styles.summary}>
-          {workExperiences[currentSlide].summary}
-        </Text>
-
-        {/* Key Achievements */}
-        <View style={styles.achievements}>
-          {workExperiences[currentSlide].keyAchievements.map((item, index) => (
-            <View key={index} style={styles.achievementItem}>
-              <Ionicons name={item.icon} size={20} color="#FFFFFF" />
-              <Text style={styles.achievementText}>{item.text}</Text>
-            </View>
-          ))}
-        </View>
-
-        {/* Skills */}
-        <View style={styles.skills}>
-          {workExperiences[currentSlide].skills.map((skill, index) => (
-            <Text key={index} style={styles.skillBadge}>
-              {skill}
-            </Text>
-          ))}
-        </View>
-
-        {/* Audio Controls */}
-        <TouchableOpacity
-  onPress={() =>
-    currentTrack?.title === workExperiences[currentSlide].title && isPlaying
-      ? stopTrack()
-      : playTrack(
-          workExperiences.map((exp) => ({
-            title: exp.title,
-            description: exp.summary,
-            text: exp.id === '1'
-              ? `At PwC US, I combined full-stack development expertise and IAM solutions to deliver secure, high-performance systems. On the backend, I developed microservices in Java and Spring Boot, seamlessly integrated with scalable front-end components using Angular. I implemented Redis caching to optimize API response times by 40% and designed efficient database schemas that supported over 5 million daily transactions. As an IAM analyst, I implemented CyberArk PAM for 100+ privileged accounts, securing access with MFA and RBAC, achieving flawless security compliance. I also automated deployment pipelines using Jenkins, Docker, and Kubernetes, reducing release cycles by 30% while maintaining high code quality. My work was driven by the challenge to ensure performance, security, and user-centric design across every layer of the stack.`
-              : exp.id === '2'
-              ? `At DXC Technology, I developed healthcare APIs processing 100K+ records daily, ensuring efficiency and accuracy. I automated IAM workflows, significantly reducing unauthorized access by 50% while enhancing task efficiency by 40%. My contributions involved ensuring seamless data migrations during API transitions and securing data with JWT authentication. I also optimized CI/CD pipelines for faster deployments and greater scalability.`
-              : ``
-          })),
-          currentSlide,
-          'Work Experience',
-          'Professional Journey'
-        )
-  }
->
-  <Ionicons
-    name={
-      currentTrack?.title === workExperiences[currentSlide].title && isPlaying
-        ? 'pause-circle'
-        : 'play-circle'
-    }
-    size={50}
-    color="#FFFFFF"
-  />
-</TouchableOpacity>
-
-      </View>
-
-      {/* Navigation */}
-      <View style={styles.navigation}>
-        <TouchableOpacity onPress={handlePreviousSlide} disabled={currentSlide === 0}>
-          <Ionicons
-            name="chevron-back-circle"
-            size={40}
-            color={currentSlide === 0 ? '#666' : '#FFFFFF'}
-          />
+        <TouchableOpacity style={styles.readMoreButton} onPress={handleShowReadMore}>
+          <Text style={styles.readMoreText}>Read More</Text>
         </TouchableOpacity>
+
         <TouchableOpacity
-          onPress={handleNextSlide}
-          disabled={currentSlide === workExperiences.length - 1}
+          onPress={() =>
+            currentTrack?.title === workExperiences[currentSlide].title && isPlaying
+              ? stopTrack()
+              : playTrack(
+                  [
+                    {
+                      title: workExperiences[currentSlide].title,
+                      text: workExperiences[currentSlide].audioText,
+                    },
+                  ],
+                  0,
+                  'Work Experience',
+                  'Professional Journey'
+                )
+          }
         >
           <Ionicons
-            name="chevron-forward-circle"
-            size={40}
-            color={currentSlide === workExperiences.length - 1 ? '#666' : '#FFFFFF'}
+            name={
+              currentTrack?.title === workExperiences[currentSlide].title && isPlaying
+                ? 'pause-circle'
+                : 'play-circle'
+            }
+            size={50}
+            color="#FFFFFF"
           />
         </TouchableOpacity>
       </View>
+
+      {isReadMoreVisible && (
+        <View style={styles.modalContainer}>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>
+              {workExperiences[currentSlide].detailedDescription[currentSectionIndex].title}
+            </Text>
+            <Text style={styles.sectionText}>
+              {workExperiences[currentSlide].detailedDescription[currentSectionIndex].content.map(
+                (part, index) => (
+                  <Text
+                    key={index}
+                    style={part.highlight ? [styles.sectionText, styles.highlight] : styles.sectionText}
+                  >
+                    {part.text}
+                  </Text>
+                )
+              )}
+            </Text>
+          </View>
+
+          <View style={styles.sectionNavigation}>
+            <TouchableOpacity onPress={handlePreviousSection} disabled={currentSectionIndex === 0}>
+              <Ionicons
+                name="chevron-back-circle"
+                size={40}
+                color={currentSectionIndex === 0 ? '#666' : '#1DB954'}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={handleNextSection}
+              disabled={
+                currentSectionIndex ===
+                workExperiences[currentSlide].detailedDescription.length - 1
+              }
+            >
+              <Ionicons
+                name="chevron-forward-circle"
+                size={40}
+                color={
+                  currentSectionIndex ===
+                  workExperiences[currentSlide].detailedDescription.length - 1
+                    ? '#666'
+                    : '#1DB954'
+                }
+              />
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity style={styles.closeButton} onPress={handleHideReadMore}>
+            <Ionicons name="close-circle" size={40} color="#1DB954" />
+          </TouchableOpacity>
+        </View>
+      )}
     </LinearGradient>
   );
 }
@@ -170,17 +249,50 @@ const styles = StyleSheet.create({
   company: { fontSize: 18, color: '#CCCCCC', marginTop: 5 },
   duration: { fontSize: 16, color: '#1DB954', marginVertical: 10 },
   summary: { fontSize: 16, color: '#DDDDDD', marginVertical: 20, textAlign: 'center' },
-  achievements: { marginTop: 20 },
-  achievementItem: { flexDirection: 'row', alignItems: 'center', marginVertical: 5 },
-  achievementText: { color: '#FFFFFF', marginLeft: 10 },
-  skills: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 20 },
-  skillBadge: {
-    backgroundColor: '#333333',
-    color: '#FFFFFF',
-    padding: 5,
-    margin: 5,
-    borderRadius: 5,
-    fontSize: 12,
+  readMoreButton: { marginTop: 20, padding: 10, backgroundColor: '#1DB954', borderRadius: 5 },
+  readMoreText: { color: '#FFFFFF', fontSize: 16, fontWeight: 'bold' },
+  modalContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
   },
-  navigation: { flexDirection: 'row', justifyContent: 'space-between' },
+  section: {
+    backgroundColor: '#121212',
+    padding: 20,
+    borderRadius: 10,
+    width: width * 0.9,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    color: '#1DB954',
+    fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  sectionText: {
+    fontSize: 16,
+    color: '#DDDDDD',
+    lineHeight: 24,
+  },
+  highlight: {
+    color: '#1DB954',
+    fontWeight: 'bold',
+  },
+  sectionNavigation: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '80%',
+    marginTop: 20,
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+  },
 });
