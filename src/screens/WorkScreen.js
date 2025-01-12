@@ -5,10 +5,12 @@ import {
   StyleSheet,
   TouchableOpacity,
   Dimensions,
+  ScrollView,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import Swiper from 'react-native-swiper';
+
 import { useAudio } from '../contexts/AudioContext';
 
 const { width } = Dimensions.get('window');
@@ -25,13 +27,14 @@ export default function WorkExperienceImmersive() {
       duration: 'Sep 2021 - Jan 2023',
       summary:
         'Crafted scalable full-stack solutions, handling 5M+ daily transactions while implementing robust IAM systems with cutting-edge security protocols.',
-      keyAchievements: [
-        { icon: 'laptop', text: 'Full Stack Development: Built microservices with Java, Spring Boot, and Angular.' },
-        { icon: 'lock', text: 'IAM Expertise: Deployed CyberArk PAM for 100+ privileged accounts with MFA and RBAC.' },
-        { icon: 'rocket', text: 'Performance Optimization: Boosted API response by 40% with Redis caching.' },
-        { icon: 'cloud', text: 'Cloud Integration: Designed scalable systems on AWS (EC2, RDS, Lambda).' },
-        { icon: 'wrench', text: 'Tech Stack: Java, Spring Boot, Angular, AWS, Redis, CyberArk, Jenkins, Docker.' },
-      ],
+        keyAchievements: [
+          { icon: 'code-outline', text: 'Full Stack Development: Built microservices with Java, Spring Boot, and Angular.' },
+          { icon: 'shield-checkmark-outline', text: 'IAM Expertise: Deployed CyberArk PAM for 100+ privileged accounts with MFA and RBAC.' },
+          { icon: 'speedometer-outline', text: 'Performance Optimization: Boosted API response by 40% with Redis caching.' },
+          { icon: 'cloud-upload-outline', text: 'Cloud Integration: Designed scalable systems on AWS (EC2, RDS, Lambda).' },
+          { icon: 'hammer-outline', text: 'Tech Stack: Java, Spring Boot, Angular, AWS, Redis, CyberArk, Jenkins, Docker.' },
+        ],
+        
       detailedDescription: [
         {
           title: 'Backend Architecture and Microservices',
@@ -174,55 +177,65 @@ At its core, my work at PwC was about creating scalable, reliable, and user-cent
           style={styles.container}
         >
           <View style={styles.slide}>
-            <Text style={styles.title}>{experience.title}</Text>
-            <Text style={styles.company}>{experience.company}</Text>
-            <Text style={styles.duration}>{experience.duration}</Text>
-            <Text style={styles.summary}>{experience.summary}</Text>
+  <Text style={styles.title}>{experience.title}</Text>
+  <Text style={styles.company}>{experience.company}</Text>
+  <Text style={styles.duration}>{experience.duration}</Text>
+  <Text style={styles.summary}>{experience.summary}</Text>
 
-            {experience.keyAchievements && (
-              <View style={styles.achievementsContainer}>
-                {experience.keyAchievements.map((achievement, idx) => (
-                  <View key={idx} style={styles.achievementItem}>
-                    <Ionicons name={achievement.icon} size={20} color="#1DB954" />
-                    <Text style={styles.achievementText}>{achievement.text}</Text>
-                  </View>
-                ))}
-              </View>
-            )}
+  {experience.keyAchievements.map((achievement, idx) => (
+  <View key={idx} style={styles.achievementItem}>
+    <Ionicons
+      name={achievement.icon}
+      size={20}
+      color="#1DB954"
+      style={styles.icon}
+    />
+    <Text style={styles.achievementText}>
+      <Text style={styles.achievementCategory}>
+        {achievement.text.split(':')[0]}: {/* Category (x) */}
+      </Text>
+      <Text style={styles.achievementDetail}>
+        {achievement.text.split(':')[1]} {/* Details (y) */}
+      </Text>
+    </Text>
+  </View>
+))}
 
-            <TouchableOpacity
-              style={styles.readMoreButton}
-              onPress={() => handleShowReadMore(index)}
-            >
-              <Text style={styles.readMoreText}>Read More</Text>
-            </TouchableOpacity>
 
-            <TouchableOpacity
-              onPress={() =>
-                currentTrack?.title === experience.title && isPlaying
-                  ? stopTrack()
-                  : playTrack(
-                      workExperiences.map(exp => ({
-                        title: exp.title,
-                        text: exp.audioText,
-                      })),
-                      index,
-                      'Work Experience',
-                      'Professional Journey'
-                    )
-              }
-            >
-              <Ionicons
-                name={
-                  currentTrack?.title === experience.title && isPlaying
-                    ? 'pause-circle'
-                    : 'play-circle'
-                }
-                size={50}
-                color="#FFFFFF"
-              />
-            </TouchableOpacity>
-          </View>
+  <TouchableOpacity
+    style={styles.readMoreButton}
+    onPress={() => handleShowReadMore(index)}
+  >
+    <Text style={styles.readMoreText}>Read More</Text>
+  </TouchableOpacity>
+
+  <TouchableOpacity
+    onPress={() =>
+      currentTrack?.title === experience.title && isPlaying
+        ? stopTrack()
+        : playTrack(
+            workExperiences.map(exp => ({
+              title: exp.title,
+              text: exp.audioText,
+            })),
+            index,
+            'Work Experience',
+            'Professional Journey'
+          )
+    }
+  >
+    <Ionicons
+      name={
+        currentTrack?.title === experience.title && isPlaying
+          ? 'pause-circle'
+          : 'play-circle'
+      }
+      size={50}
+      color="#FFFFFF"
+    />
+  </TouchableOpacity>
+</View>
+
 
           {/* Read More Modal */}
           {readMoreIndex === index && (
@@ -308,6 +321,21 @@ const styles = StyleSheet.create({
   achievementText: { marginLeft: 10, color: '#FFFFFF', fontSize: 16 },
   readMoreButton: { marginTop: 20, padding: 10, backgroundColor: '#1DB954', borderRadius: 5 },
   readMoreText: { color: '#FFFFFF', fontSize: 16, fontWeight: 'bold' },
+  achievementText: { 
+    marginLeft: 10, 
+    fontSize: 16, 
+    flexWrap: 'wrap', 
+    color: '#FFFFFF' 
+  },
+  achievementCategory: { 
+    fontWeight: 'bold', 
+    color: '#1DB954', 
+  },
+  achievementDetail: { 
+    color: '#DDDDDD', 
+    fontWeight: 'normal',
+  },
+  
   modalContainer: {
     position: 'absolute',
     top: 0,
