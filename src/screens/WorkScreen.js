@@ -10,6 +10,8 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import Swiper from 'react-native-swiper';
+import * as Animatable from 'react-native-animatable';
+import ImageColors from 'react-native-image-colors'; // Library for extracting colors
 
 import { useAudio } from '../contexts/AudioContext';
 
@@ -25,6 +27,7 @@ export default function WorkExperienceImmersive() {
       title: 'Software Engineer',
       company: 'PwC US',
       duration: 'Sep 2021 - Jan 2023',
+      logo: require('../assets/pwc.png'),
       summary:
         'Crafted scalable full-stack solutions, handling 5M+ daily transactions while implementing robust IAM systems with cutting-edge security protocols.',
         keyAchievements: [
@@ -177,6 +180,13 @@ At its core, my work at PwC was about creating scalable, reliable, and user-cent
           style={styles.container}
         >
           <View style={styles.slide}>
+          <Animatable.Image
+              animation="zoomIn"
+              duration={1500}
+              delay={index * 300}
+              source={experience.logo}
+              style={styles.companyLogo}
+            />
   <Text style={styles.title}>{experience.title}</Text>
   <Text style={styles.company}>{experience.company}</Text>
   <Text style={styles.duration}>{experience.duration}</Text>
@@ -312,6 +322,12 @@ At its core, my work at PwC was about creating scalable, reliable, and user-cent
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: 'space-between', padding: 20 },
   slide: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  companyLogo: {
+    width: 80,
+    height: 80,
+    resizeMode: 'contain',
+    marginBottom: 20,
+  },
   title: { fontSize: 28, color: '#FFFFFF', fontWeight: 'bold', textAlign: 'center' },
   company: { fontSize: 18, color: '#CCCCCC', marginTop: 5 },
   duration: { fontSize: 16, color: '#1DB954', marginVertical: 10 },
