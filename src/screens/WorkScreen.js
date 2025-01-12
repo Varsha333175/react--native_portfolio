@@ -8,14 +8,14 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import Swiper from 'react-native-swiper';
 import { useAudio } from '../contexts/AudioContext';
 
 const { width } = Dimensions.get('window');
 
 export default function WorkExperienceImmersive() {
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [isReadMoreVisible, setReadMoreVisible] = useState(false);
-  const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
+  const [readMoreIndex, setReadMoreIndex] = useState(null); // Tracks the slide index for "Read More"
+  const [currentSectionIndex, setCurrentSectionIndex] = useState(0); // Tracks section within the modal
 
   const workExperiences = [
     {
@@ -119,13 +119,43 @@ As a problem-solver, I routinely diagnosed and resolved production issues throug
 
 At its core, my work at PwC was about creating scalable, reliable, and user-centric solutions—turning complex challenges into streamlined systems that delivered results.`,
     },
+
+    {
+      id: '2',
+      title: 'Junior Developer',
+      company: 'Tech Solutions Inc.',
+      duration: 'Jun 2019 - Aug 2021',
+      summary: 'Developed front-end features...',
+      keyAchievements: [
+        { icon: 'rocket', text: 'Improved app performance by 30%.' },
+        { icon: 'cloud', text: 'Integrated AWS services for scalability.' },
+      ],
+      bgColor: ['#FF5722', '#263238'],
+      audioText: `Audio for Tech Solutions Inc...`,
+      detailedDescription: [
+        { title: 'Responsive Design', content: [{ text: 'Improved accessibility...', highlight: true }] },
+        { title: 'Cloud Solutions', content: [{ text: 'Deployed scalable systems...', highlight: false }] },
+      ],
+    },
   ];
 
   const { isPlaying, playTrack, stopTrack, currentTrack } = useAudio();
 
+  const handleShowReadMore = (index) => {
+    setReadMoreIndex(index);
+    setCurrentSectionIndex(0);
+  };
+
+  const handleHideReadMore = () => {
+    setReadMoreIndex(null);
+  };
+
   const handleNextSection = () => {
-    if (currentSectionIndex < workExperiences[currentSlide].detailedDescription.length - 1) {
-      setCurrentSectionIndex(currentSectionIndex + 1);
+    if (readMoreIndex !== null) {
+      const sections = workExperiences[readMoreIndex].detailedDescription;
+      if (currentSectionIndex < sections.length - 1) {
+        setCurrentSectionIndex(currentSectionIndex + 1);
+      }
     }
   };
 
@@ -135,110 +165,134 @@ At its core, my work at PwC was about creating scalable, reliable, and user-cent
     }
   };
 
-  const handleShowReadMore = () => {
-    setReadMoreVisible(true);
-    setCurrentSectionIndex(0); // Reset to the first subsection
-  };
-
-  const handleHideReadMore = () => {
-    setReadMoreVisible(false);
-  };
-
   return (
-    <LinearGradient colors={workExperiences[currentSlide].bgColor} style={styles.container}>
-      <View style={styles.slide}>
-        <Text style={styles.title}>{workExperiences[currentSlide].title}</Text>
-        <Text style={styles.company}>{workExperiences[currentSlide].company}</Text>
-        <Text style={styles.duration}>{workExperiences[currentSlide].duration}</Text>
-        <Text style={styles.summary}>{workExperiences[currentSlide].summary}</Text>
-
-        <TouchableOpacity style={styles.readMoreButton} onPress={handleShowReadMore}>
-          <Text style={styles.readMoreText}>Read More</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() =>
-            currentTrack?.title === workExperiences[currentSlide].title && isPlaying
-              ? stopTrack()
-              : playTrack(
-                  [
-                    {
-                      title: workExperiences[currentSlide].title,
-                      text: workExperiences[currentSlide].audioText,
-                    },
-                  ],
-                  0,
-                  'Work Experience',
-                  'Professional Journey'
-                )
-          }
+    <Swiper loop={false} showsPagination={true} activeDotColor="#1DB954">
+      {workExperiences.map((experience, index) => (
+        <LinearGradient
+          key={experience.id}
+          colors={experience.bgColor}
+          style={styles.container}
         >
-          <Ionicons
-            name={
-              currentTrack?.title === workExperiences[currentSlide].title && isPlaying
-                ? 'pause-circle'
-                : 'play-circle'
-            }
-            size={50}
-            color="#FFFFFF"
-          />
-        </TouchableOpacity>
-      </View>
+          <View style={styles.slide}>
+            <Text style={styles.title}>{experience.title}</Text>
+            <Text style={styles.company}>{experience.company}</Text>
+            <Text style={styles.duration}>{experience.duration}</Text>
+            <Text style={styles.summary}>{experience.summary}</Text>
 
-      {isReadMoreVisible && (
-        <View style={styles.modalContainer}>
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>
-              {workExperiences[currentSlide].detailedDescription[currentSectionIndex].title}
-            </Text>
-            <Text style={styles.sectionText}>
-              {workExperiences[currentSlide].detailedDescription[currentSectionIndex].content.map(
-                (part, index) => (
-                  <Text
-                    key={index}
-                    style={part.highlight ? [styles.sectionText, styles.highlight] : styles.sectionText}
-                  >
-                    {part.text}
-                  </Text>
-                )
-              )}
-            </Text>
-          </View>
+            {experience.keyAchievements && (
+              <View style={styles.achievementsContainer}>
+                {experience.keyAchievements.map((achievement, idx) => (
+                  <View key={idx} style={styles.achievementItem}>
+                    <Ionicons name={achievement.icon} size={20} color="#1DB954" />
+                    <Text style={styles.achievementText}>{achievement.text}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
 
-          <View style={styles.sectionNavigation}>
-            <TouchableOpacity onPress={handlePreviousSection} disabled={currentSectionIndex === 0}>
-              <Ionicons
-                name="chevron-back-circle"
-                size={40}
-                color={currentSectionIndex === 0 ? '#666' : '#1DB954'}
-              />
-            </TouchableOpacity>
             <TouchableOpacity
-              onPress={handleNextSection}
-              disabled={
-                currentSectionIndex ===
-                workExperiences[currentSlide].detailedDescription.length - 1
+              style={styles.readMoreButton}
+              onPress={() => handleShowReadMore(index)}
+            >
+              <Text style={styles.readMoreText}>Read More</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() =>
+                currentTrack?.title === experience.title && isPlaying
+                  ? stopTrack()
+                  : playTrack(
+                      workExperiences.map(exp => ({
+                        title: exp.title,
+                        text: exp.audioText,
+                      })),
+                      index,
+                      'Work Experience',
+                      'Professional Journey'
+                    )
               }
             >
               <Ionicons
-                name="chevron-forward-circle"
-                size={40}
-                color={
-                  currentSectionIndex ===
-                  workExperiences[currentSlide].detailedDescription.length - 1
-                    ? '#666'
-                    : '#1DB954'
+                name={
+                  currentTrack?.title === experience.title && isPlaying
+                    ? 'pause-circle'
+                    : 'play-circle'
                 }
+                size={50}
+                color="#FFFFFF"
               />
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity style={styles.closeButton} onPress={handleHideReadMore}>
-            <Ionicons name="close-circle" size={40} color="#1DB954" />
-          </TouchableOpacity>
-        </View>
-      )}
-    </LinearGradient>
+          {/* Read More Modal */}
+          {readMoreIndex === index && (
+            <View style={styles.modalContainer}>
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>
+                  {
+                    experience.detailedDescription[currentSectionIndex].title
+                  }
+                </Text>
+                <Text style={styles.sectionText}>
+                  {experience.detailedDescription[currentSectionIndex].content.map(
+                    (part, idx) => (
+                      <Text
+                        key={idx}
+                        style={
+                          part.highlight
+                            ? [styles.sectionText, styles.highlight]
+                            : styles.sectionText
+                        }
+                      >
+                        {part.text}
+                      </Text>
+                    )
+                  )}
+                </Text>
+              </View>
+
+              <View style={styles.sectionNavigation}>
+                <TouchableOpacity
+                  onPress={handlePreviousSection}
+                  disabled={currentSectionIndex === 0}
+                >
+                  <Ionicons
+                    name="chevron-back-circle"
+                    size={40}
+                    color={currentSectionIndex === 0 ? '#666' : '#1DB954'}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={handleNextSection}
+                  disabled={
+                    currentSectionIndex ===
+                    experience.detailedDescription.length - 1
+                  }
+                >
+                  <Ionicons
+                    name="chevron-forward-circle"
+                    size={40}
+                    color={
+                      currentSectionIndex ===
+                      experience.detailedDescription.length - 1
+                        ? '#666'
+                        : '#1DB954'
+                    }
+                  />
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={handleHideReadMore}
+              >
+                <Ionicons name="close-circle" size={40} color="#1DB954" />
+              </TouchableOpacity>
+            </View>
+          )}
+        </LinearGradient>
+      ))}
+    </Swiper>
   );
 }
 
@@ -249,6 +303,9 @@ const styles = StyleSheet.create({
   company: { fontSize: 18, color: '#CCCCCC', marginTop: 5 },
   duration: { fontSize: 16, color: '#1DB954', marginVertical: 10 },
   summary: { fontSize: 16, color: '#DDDDDD', marginVertical: 20, textAlign: 'center' },
+  achievementsContainer: { marginVertical: 20 },
+  achievementItem: { flexDirection: 'row', alignItems: 'center', marginVertical: 5 },
+  achievementText: { marginLeft: 10, color: '#FFFFFF', fontSize: 16 },
   readMoreButton: { marginTop: 20, padding: 10, backgroundColor: '#1DB954', borderRadius: 5 },
   readMoreText: { color: '#FFFFFF', fontSize: 16, fontWeight: 'bold' },
   modalContainer: {
