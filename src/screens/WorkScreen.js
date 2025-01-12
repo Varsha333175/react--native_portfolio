@@ -1,26 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   Dimensions,
-  ScrollView,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import Swiper from 'react-native-swiper';
 import * as Animatable from 'react-native-animatable';
-
-
 import { useAudio } from '../contexts/AudioContext';
 
 const { width } = Dimensions.get('window');
 
 export default function WorkExperienceImmersive() {
-  const [readMoreIndex, setReadMoreIndex] = useState(null); // Tracks the slide index for "Read More"
-  const [currentSectionIndex, setCurrentSectionIndex] = useState(0); // Tracks section within the modal
+  const [readMoreIndex, setReadMoreIndex] = useState(null);
+  const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
 
+  const slideRefs = useRef([]); // Refs for slides
+  const modalRef = useRef(null); // Ref for modal animations
   const workExperiences = [
     {
       id: '1',
@@ -243,106 +242,132 @@ At its core, my work at PwC was about creating scalable, reliable, and user-cent
   const handleShowReadMore = (index) => {
     setReadMoreIndex(index);
     setCurrentSectionIndex(0);
-  };
 
-  const handleHideReadMore = () => {
-    setReadMoreIndex(null);
-  };
-
-  const handleNextSection = () => {
-    if (readMoreIndex !== null) {
-      const sections = workExperiences[readMoreIndex].detailedDescription;
-      if (currentSectionIndex < sections.length - 1) {
-        setCurrentSectionIndex(currentSectionIndex + 1);
-      }
+    if (modalRef.current) {
+      modalRef.current.animate('fadeInUp', 500);
     }
   };
 
-  const handlePreviousSection = () => {
-    if (currentSectionIndex > 0) {
-      setCurrentSectionIndex(currentSectionIndex - 1);
+  const handleHideReadMore = () => {
+    if (modalRef.current) {
+      modalRef.current.animate('fadeOutDown', 500).then(() => {
+        setReadMoreIndex(null);
+      });
+    }
+  };
+
+  const handleSlideChange = (index) => {
+    // Trigger animation for the current slide
+    if (slideRefs.current[index]) {
+      slideRefs.current[index].animate('fadeInUp', 800);
     }
   };
 
   return (
-    <Swiper loop={false} showsPagination={true} activeDotColor="#1DB954">
+    <Swiper
+      loop={false}
+      showsPagination={true}
+      activeDotColor="#1DB954"
+      onIndexChanged={handleSlideChange}
+    >
       {workExperiences.map((experience, index) => (
         <LinearGradient
           key={experience.id}
           colors={experience.bgColor}
           style={styles.container}
         >
-          <View style={styles.slide}>
-          <Animatable.Image
+          <Animatable.View
+            ref={(ref) => (slideRefs.current[index] = ref)}
+            animation="fadeInUp"
+            duration={1000}
+            style={styles.slide}
+          >
+            <Animatable.Image
               animation="zoomIn"
-              duration={1500}
+              duration={1000}
               delay={index * 300}
               source={experience.logo}
               style={styles.companyLogo}
             />
-  <Text style={styles.title}>{experience.title}</Text>
-  <Text style={styles.company}>{experience.company}</Text>
-  <Text style={styles.duration}>{experience.duration}</Text>
-  <Text style={styles.summary}>{experience.summary}</Text>
+            <Text style={styles.title}>{experience.title}</Text>
+            <Text style={styles.company}>{experience.company}</Text>
+            <Text style={styles.duration}>{experience.duration}</Text>
+            <Text style={styles.summary}>{experience.summary}</Text>
 
-  {experience.keyAchievements.map((achievement, idx) => (
-  <View key={idx} style={styles.achievementItem}>
-    <Ionicons
-      name={achievement.icon}
-      size={20}
-      color="#1DB954"
-      style={styles.icon}
-    />
-    <Text style={styles.achievementText}>
-      <Text style={styles.achievementCategory}>
-        {achievement.text.split(':')[0]}: {/* Category (x) */}
-      </Text>
-      <Text style={styles.achievementDetail}>
-        {achievement.text.split(':')[1]} {/* Details (y) */}
-      </Text>
-    </Text>
-  </View>
-))}
+            {experience.keyAchievements.map((achievement, idx) => (
+              <Animatable.View
+                key={idx}
+                animation="fadeInLeft"
+                duration={800}
+                delay={idx * 200}
+                style={styles.achievementItem}
+              >
+                <Ionicons
+                  name={achievement.icon}
+                  size={20}
+                  color="#1DB954"
+                  style={styles.icon}
+                />
+                <Text style={styles.achievementText}>
+                  <Text style={styles.achievementCategory}>
+                    {achievement.text.split(':')[0]}:{' '}
+                  </Text>
+                  <Text style={styles.achievementDetail}>
+                    {achievement.text.split(':')[1]}
+                  </Text>
+                </Text>
+              </Animatable.View>
+            ))}
 
+            <TouchableOpacity
+              style={styles.readMoreButton}
+              onPress={() => handleShowReadMore(index)}
+            >
+              <Animatable.Text
+                animation="pulse"
+                iterationCount="infinite"
+                style={styles.readMoreText}
+              >
+                Read More
+              </Animatable.Text>
+            </TouchableOpacity>
 
-  <TouchableOpacity
-    style={styles.readMoreButton}
-    onPress={() => handleShowReadMore(index)}
-  >
-    <Text style={styles.readMoreText}>Read More</Text>
-  </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() =>
+                currentTrack?.title === experience.title && isPlaying
+                  ? stopTrack()
+                  : playTrack(
+                      workExperiences.map((exp) => ({
+                        title: exp.title,
+                        text: exp.audioText,
+                      })),
+                      index,
+                      'Work Experience',
+                      'Professional Journey'
+                    )
+              }
+            >
+              <Animatable.View animation="bounceIn" duration={800}>
+                <Ionicons
+                  name={
+                    currentTrack?.title === experience.title && isPlaying
+                      ? 'pause-circle'
+                      : 'play-circle'
+                  }
+                  size={50}
+                  color="#FFFFFF"
+                />
+              </Animatable.View>
+            </TouchableOpacity>
+          </Animatable.View>
 
-  <TouchableOpacity
-    onPress={() =>
-      currentTrack?.title === experience.title && isPlaying
-        ? stopTrack()
-        : playTrack(
-            workExperiences.map(exp => ({
-              title: exp.title,
-              text: exp.audioText,
-            })),
-            index,
-            'Work Experience',
-            'Professional Journey'
-          )
-    }
-  >
-    <Ionicons
-      name={
-        currentTrack?.title === experience.title && isPlaying
-          ? 'pause-circle'
-          : 'play-circle'
-      }
-      size={50}
-      color="#FFFFFF"
-    />
-  </TouchableOpacity>
-</View>
-
-
-          {/* Read More Modal */}
           {readMoreIndex === index && (
-            <View style={styles.modalContainer}>
+            <Animatable.View
+              ref={modalRef}
+              animation="fadeInUp"
+              duration={500}
+              style={styles.modalContainer}
+            >
               <View style={styles.section}>
                 <Text style={styles.sectionTitle}>
                   {
@@ -350,20 +375,20 @@ At its core, my work at PwC was about creating scalable, reliable, and user-cent
                   }
                 </Text>
                 <Text style={styles.sectionText}>
-                  {experience.detailedDescription[currentSectionIndex].content.map(
-                    (part, idx) => (
-                      <Text
-                        key={idx}
-                        style={
-                          part.highlight
-                            ? [styles.sectionText, styles.highlight]
-                            : styles.sectionText
-                        }
-                      >
-                        {part.text}
-                      </Text>
-                    )
-                  )}
+                  {experience.detailedDescription[
+                    currentSectionIndex
+                  ].content.map((part, idx) => (
+                    <Text
+                      key={idx}
+                      style={
+                        part.highlight
+                          ? [styles.sectionText, styles.highlight]
+                          : styles.sectionText
+                      }
+                    >
+                      {part.text}
+                    </Text>
+                  ))}
                 </Text>
               </View>
 
@@ -404,7 +429,7 @@ At its core, my work at PwC was about creating scalable, reliable, and user-cent
               >
                 <Ionicons name="close-circle" size={40} color="#1DB954" />
               </TouchableOpacity>
-            </View>
+            </Animatable.View>
           )}
         </LinearGradient>
       ))}
