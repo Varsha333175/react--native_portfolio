@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -15,11 +15,15 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import ConfettiCannon from 'react-native-confetti-cannon';
 
 export default function SkillsScreen() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredSkills, setFilteredSkills] = useState([]);
+  const [matchedSkill, setMatchedSkill] = useState('');
   const [messageOpacity] = useState(new Animated.Value(0));
+  const [showConfetti, setShowConfetti] = useState(false);
+  const glowAnim = useState(new Animated.Value(0))[0];
   const { width, height } = Dimensions.get('window');
 
   const skills = [
@@ -103,11 +107,32 @@ export default function SkillsScreen() {
     },
   ];
   
+
+  const calculateSimilarity = (input, skill) => {
+    const inputLower = input.toLowerCase();
+    const skillLower = skill.toLowerCase();
+
+    if (skillLower.includes(inputLower)) {
+      return 1;
+    }
+
+    let matches = 0;
+    for (let i = 0; i < inputLower.length; i++) {
+      if (inputLower[i] === skillLower[i]) {
+        matches++;
+      } else {
+        break;
+      }
+    }
+    return matches / skillLower.length;
+  };
+
   const handleSearch = (text) => {
     setSearchTerm(text);
 
     if (text.trim().length === 0) {
       setFilteredSkills([]);
+      setShowConfetti(false);
       return;
     }
 
@@ -116,16 +141,75 @@ export default function SkillsScreen() {
     const matchingSkills = skills.map((group) => ({
       category: group.category,
       skills: group.skills.filter((skill) =>
-        skill.toLowerCase().includes(lowerCaseText)
+        skill.toLowerCase().includes(lowerCaseText) || calculateSimilarity(lowerCaseText, skill) > 0.5
       ),
     }));
 
     setFilteredSkills(matchingSkills);
+
+    if (matchingSkills.flatMap((group) => group.skills).length > 0) {
+      setMatchedSkill(text);
+
+      Animated.sequence([
+        Animated.timing(messageOpacity, {
+          toValue: 1,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(messageOpacity, {
+          toValue: 0,
+          duration: 1500,
+          delay: 1000,
+          useNativeDriver: true,
+        }),
+      ]).start();
+
+      setShowConfetti(true);
+
+      if (Platform.OS === 'android' || Platform.OS === 'ios') {
+        Vibration.vibrate(50);
+      }
+
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(glowAnim, {
+            toValue: 1,
+            duration: 500,
+            useNativeDriver: false,
+          }),
+          Animated.timing(glowAnim, {
+            toValue: 0,
+            duration: 500,
+            useNativeDriver: false,
+          }),
+        ])
+      ).start();
+    } else {
+      setMatchedSkill('');
+      setShowConfetti(false);
+    }
   };
 
   const clearSearch = () => {
     setSearchTerm('');
     setFilteredSkills([]);
+    setMatchedSkill('');
+    setShowConfetti(false);
+  };
+
+  const highlightMatchedText = (text, query) => {
+    const regex = new RegExp(`(${query})`, 'i');
+    const parts = text.split(regex);
+
+    return parts.map((part, index) =>
+      regex.test(part) ? (
+        <Text key={index} style={styles.highlightedText}>
+          {part}
+        </Text>
+      ) : (
+        part
+      )
+    );
   };
 
   const skillsToRender = searchTerm ? filteredSkills : skills;
@@ -164,41 +248,58 @@ export default function SkillsScreen() {
               <View key={index} style={styles.categoryContainer}>
                 <Text style={styles.categoryTitle}>{group.category}</Text>
                 <View style={styles.skillTags}>
-                {group.skills.map((skill, idx) => {
-  const lowerCaseSearchTerm = searchTerm.toLowerCase();
-  const lowerCaseSkill = skill.toLowerCase();
-  const matchIndex = lowerCaseSkill.indexOf(lowerCaseSearchTerm);
-
-  if (matchIndex !== -1 && searchTerm.length > 0) {
-    // Split the skill into three parts: before, match, and after
-    const beforeMatch = skill.slice(0, matchIndex);
-    const matchText = skill.slice(matchIndex, matchIndex + searchTerm.length);
-    const afterMatch = skill.slice(matchIndex + searchTerm.length);
-
-    return (
-      <View key={idx} style={styles.skillBadge}>
-        <Text style={styles.skillText}>
-          {beforeMatch}
-          <Text style={styles.highlightedText}>{matchText}</Text>
-          {afterMatch}
-        </Text>
-      </View>
-    );
-  } else {
-    // Render the skill normally if no match is found
-    return (
-      <View key={idx} style={styles.skillBadge}>
-        <Text style={styles.skillText}>{skill}</Text>
-      </View>
-    );
-  }
-})}
-
+                  {group.skills.map((skill, idx) => (
+                    <Animated.View
+                      key={idx}
+                      style={[
+                        styles.skillBadge,
+                        matchedSkill &&
+                          skill.toLowerCase().includes(matchedSkill.toLowerCase()) && {
+                            shadowColor: '#1DB954',
+                            shadowOffset: { width: 0, height: 0 },
+                            shadowRadius: glowAnim.interpolate({
+                              inputRange: [0, 1],
+                              outputRange: [0, 10],
+                            }),
+                            shadowOpacity: 1,
+                          },
+                      ]}
+                    >
+                      <Text style={styles.skillText}>
+                        {highlightMatchedText(skill, searchTerm)}
+                      </Text>
+                    </Animated.View>
+                  ))}
                 </View>
               </View>
             )
         )}
       </ScrollView>
+
+      {/* Message for Matched Skill */}
+      {matchedSkill && (
+        <Animated.View
+          style={[
+            styles.messageContainer,
+            {
+              opacity: messageOpacity,
+              top: height / 3,
+              left: width / 2 - 150,
+            },
+          ]}
+        >
+          <Text style={styles.messageText}>🎉 Hooray! I have that skill!</Text>
+        </Animated.View>
+      )}
+
+      {/* Confetti Animation */}
+      {showConfetti && (
+        <ConfettiCannon
+          count={50}
+          origin={{ x: width / 2, y: height / 3 }}
+          fadeOut
+        />
+      )}
     </LinearGradient>
   );
 }
@@ -247,28 +348,40 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   skillBadge: {
-    backgroundColor: '#333',
+    backgroundColor: '#1F1F1F',
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 20,
     marginRight: 10,
     marginBottom: 10,
-    opacity: 0.8,
-    transform: [{ scale: 1 }],
-    transition: 'all 0.3s ease-in-out',
-  },
-  highlightedSkill: {
-    backgroundColor: '#1DB954',
-    opacity: 1,
-    transform: [{ scale: 1.1 }],
+    borderWidth: 1,
+    borderColor: '#1DB954',
   },
   skillText: {
     color: '#FFF',
     fontSize: 14,
   },
   highlightedText: {
-    color: '#1DB954', // Matches the green theme used throughout
+    color: '#1DB954',
+    fontWeight: 'bold',
+    textShadowColor: '#0D4D1A',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+  },
+  messageContainer: {
+    position: 'absolute',
+    zIndex: 1000,
+    backgroundColor: '#333',
+    padding: 20,
+    borderRadius: 20,
+    elevation: 5,
+    width: 300,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  messageText: {
+    color: '#1DB954',
+    fontSize: 16,
     fontWeight: 'bold',
   },
-  
 });
