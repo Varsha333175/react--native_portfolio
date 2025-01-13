@@ -1,221 +1,203 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import {
   View,
   Text,
   TextInput,
-  ScrollView,
   StyleSheet,
+  ScrollView,
   Animated,
+  Dimensions,
+  TouchableOpacity,
+  Platform,
+  StatusBar,
+  Vibration,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import ConfettiCannon from 'react-native-confetti-cannon'; // Add confetti effect
+import { Ionicons } from '@expo/vector-icons';
 
 export default function SkillsScreen() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showMessage, setShowMessage] = useState(false);
-  const [messageAnim] = useState(new Animated.Value(0)); // Animation for "Hooray" message
-  const [typingTimeout, setTypingTimeout] = useState(null);
-  const [showConfetti, setShowConfetti] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredSkills, setFilteredSkills] = useState([]);
+  const [messageOpacity] = useState(new Animated.Value(0));
+  const { width, height } = Dimensions.get('window');
 
-  const skills = {
-    'Coding Languages': [
-      'Java',
-      'JavaScript',
-      'TypeScript',
-      'Python',
-      'C',
-      'C++',
-      'JUnit',
-      'SQL',
-      'Shell Scripting',
-    ],
-    'Backend Technologies': [
-      'Spring Boot',
-      'Microservices',
-      'RESTful APIs',
-      'Node.js',
-      'Hibernate',
-      'Backend Optimization',
-    ],
-    'Frontend Technologies': [
-      'Angular',
-      'React',
-      'HTML5',
-      'CSS3',
-      'Bootstrap',
-      'Redux',
-    ],
-    'Cloud and DevOps': [
-      'AWS (EC2, S3, Lambda, RDS, DynamoDB)',
-      'Azure',
-      'Jenkins',
-      'Docker',
-      'Kubernetes',
-      'Terraform',
-      'CI/CD Pipelines',
-      'Git',
-      'Cloud-Native Systems',
-      'Build Automation',
-    ],
-    Database: [
-      'MySQL',
-      'PostgreSQL',
-      'MongoDB',
-      'Redis',
-      'Cassandra',
-      'SQL Query Optimization',
-      'Indexing',
-    ],
-    'Security and IAM': [
-      'CyberArk',
-      'OAuth 2.0',
-      'SSO',
-      'MFA',
-      'Active Directory',
-      'JWT',
-      'RBAC',
-      'SSL/TLS',
-      'Access Controls',
-      'Privileged Access Management (PAM)',
-    ],
-    'System Design': [
-      'Fault-Tolerant Architectures',
-      'Load Balancing',
-      'Data Structures & Algorithms',
-      'High Availability Systems',
-      'Modular System Architecture',
-      'Cloud Integration',
-      'Real-Time Monitoring',
-    ],
-    'Project Management & Agile': [
-      'Agile (Scrum, Kanban)',
-      'SDLC',
-      'Jira',
-      'Cross-Functional Collaboration',
-      'Sprint Planning',
-      'Root Cause Analysis',
-    ],
-    'Testing and Version Control': [
-      'JUnit',
-      'Mockito',
-      'Postman',
-      'Maven',
-      'Gradle',
-    ],
-    Certifications: [
-      'AWS Certified Solutions Architect – Associate',
-      'CyberArk Defender - Privileged Access Management (PAM)',
-    ],
-    General: [
-      'Compliance',
-      'Design',
-      'Disaster Recovery',
-      'Management',
-      'Provisioning',
-      'Responsive Design',
-      'Security Standards',
-      'Troubleshooting',
-    ],
-    Technical: [
-      'Access Controls',
-      'Algorithms',
-      'Amazon EC2',
-      'AngularJS',
-      'Applications',
-      'Automation',
-      'Big Data',
-      'Cloud Computing',
-      'Diagnostics',
-      'Machine Learning',
-      'Performance',
-      'Scalability',
-    ],
+  const skills = [
+    {
+      category: "Coding Languages",
+      skills: [
+        "Bash", "C", "C++", "JUnit", "Java", "JavaScript", "Programming",
+        "Python", "Redux", "Scripting", "TypeScript"
+      ],
+    },
+    {
+      category: "General",
+      skills: [
+        "Collaboration", "Compliance", "Design", "Jira", "Management",
+        "Project Management", "Reporting", "Responsive Design", "Scrum",
+        "User Engagement", "Accessibility", "Docs", "Driving", "Onboarding",
+        "Operations", "Resilience", "User Interface"
+      ],
+    },
+    {
+      category: "Technical",
+      skills: [
+        "Access Controls", "Active Directory", "Algorithms", "Amazon EC2",
+        "Amazon S3", "Amazon Web Services", "Angular", "AngularJS",
+        "Apache Cassandra", "Apache Kafka", "Apache Maven", "Applications",
+        "Architecture", "Authentication", "Automation", "Backend",
+        "Big Data", "Bitbucket", "Bootstrap", "Caching", "Cassandra", "Cloud",
+        "Cloud Computing", "Dashboards", "Data Processing", "Data Structures",
+        "Databases", "Databricks", "DevOps", "Docker", "DynamoDB",
+        "File Sharing", "Git", "GitHub", "Gradle", "HTML5", "Hadoop",
+        "Hibernate", "Integration", "Jenkins", "Kubernetes", "Machine Learning",
+        "Mockito", "MongoDB", "MySQL", "Navigation", "Node.js", "OAuth",
+        "Performance", "PostgreSQL", "PowerShell", "Redis", "Redshift",
+        "Reliability", "SQL", "Security", "ServiceNow", "Shell Scripting",
+        "Snowflake", "Spring", "Terraform", "Testing", "Web Development",
+        "jQuery", "Analysis", "Debugging", "Deployment", "Devices",
+        "Load Balancing", "Monitoring", "Rapid", "Search", "Security Standards",
+        "Storage", "Teams"
+      ],
+    },
+    {
+      category: "Backend Technologies",
+      skills: [
+        "Node.js", "Spring Boot", "Redis", "MySQL", "RESTful APIs", "Hibernate",
+        "Microservices"
+      ],
+    },
+    {
+      category: "Frontend Technologies",
+      skills: [
+        "React", "Angular", "HTML5", "CSS3", "Bootstrap", "Redux",
+        "TypeScript", "jQuery"
+      ],
+    },
+    {
+      category: "Cloud & DevOps",
+      skills: [
+        "AWS (EC2, S3, Lambda)", "Azure", "Jenkins", "Docker", "Kubernetes",
+        "Terraform", "CI/CD", "Git"
+      ],
+    },
+    {
+      category: "Security",
+      skills: [
+        "CyberArk", "OAuth 2.0", "SSO", "MFA", "Active Directory",
+        "JWT", "RBAC", "SSL/TLS"
+      ],
+    },
+    {
+      category: "Project Management & Agile",
+      skills: [
+        "Agile (Scrum, Kanban)", "SDLC", "Jira", "Onboarding",
+        "Operations", "Project Management"
+      ],
+    },
+    {
+      category: "Testing & Version Control",
+      skills: [
+        "JUnit", "Mockito", "Postman", "Maven", "Gradle"
+      ],
+    },
+  ];
+  
+  const handleSearch = (text) => {
+    setSearchTerm(text);
+
+    if (text.trim().length === 0) {
+      setFilteredSkills([]);
+      return;
+    }
+
+    const lowerCaseText = text.toLowerCase();
+
+    const matchingSkills = skills.map((group) => ({
+      category: group.category,
+      skills: group.skills.filter((skill) =>
+        skill.toLowerCase().includes(lowerCaseText)
+      ),
+    }));
+
+    setFilteredSkills(matchingSkills);
   };
 
-  const filteredSkills = Object.keys(skills).reduce((acc, category) => {
-    const filteredItems = skills[category].filter((skill) =>
-      skill.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    if (filteredItems.length > 0) acc[category] = filteredItems;
-    return acc;
-  }, {});
+  const clearSearch = () => {
+    setSearchTerm('');
+    setFilteredSkills([]);
+  };
 
-  const hasMatchingSkill = Object.values(filteredSkills).flat().length > 0;
-
-  useEffect(() => {
-    if (typingTimeout) {
-      clearTimeout(typingTimeout);
-    }
-    setTypingTimeout(
-      setTimeout(() => {
-        if (searchQuery && hasMatchingSkill) {
-          setShowMessage(true);
-          setShowConfetti(true);
-          Animated.sequence([
-            Animated.timing(messageAnim, {
-              toValue: 1,
-              duration: 500,
-              useNativeDriver: true,
-            }),
-            Animated.timing(messageAnim, {
-              toValue: 0,
-              duration: 500,
-              delay: 4000, // Message stays longer
-              useNativeDriver: true,
-            }),
-          ]).start(() => {
-            setShowMessage(false);
-            setShowConfetti(false);
-          });
-        }
-      }, 800)
-    );
-  }, [searchQuery, hasMatchingSkill]);
+  const skillsToRender = searchTerm ? filteredSkills : skills;
 
   return (
-    <LinearGradient colors={['#1DB954', '#121212']} style={styles.container}>
-      <TextInput
-        style={styles.searchBar}
-        placeholder="Search Skills..."
-        placeholderTextColor="#888"
-        onChangeText={(text) => setSearchQuery(text)}
-        value={searchQuery}
-      />
+    <LinearGradient
+      colors={['#1DB954', '#121212']}
+      style={styles.container}
+    >
+      <StatusBar barStyle="light-content" backgroundColor="#1DB954" />
 
-      {showMessage && (
-        <>
-          <Animated.View
-            style={[
-              styles.hoorayMessage,
-              { opacity: messageAnim, transform: [{ scale: messageAnim }] },
-            ]}
-          >
-            <Text style={styles.hoorayText}>🎉 Hooray! I have that skill!</Text>
-          </Animated.View>
-          {showConfetti && (
-            <ConfettiCannon
-              count={100}
-              origin={{ x: 180, y: 10 }} // Adjust origin point
-              fadeOut={true}
-              explosionSpeed={300}
-            />
-          )}
-        </>
-      )}
+      {/* Search Bar */}
+      <View style={styles.searchBarContainer}>
+        <TextInput
+          style={styles.searchBar}
+          placeholder="Search Skills..."
+          placeholderTextColor="#999"
+          value={searchTerm}
+          onChangeText={handleSearch}
+        />
+        {searchTerm.length > 0 && (
+          <TouchableOpacity onPress={clearSearch} style={styles.clearButton}>
+            <Ionicons name="close-circle" size={20} color="#FFFFFF" />
+          </TouchableOpacity>
+        )}
+      </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {Object.keys(filteredSkills).map((category, index) => (
-          <View key={index} style={styles.categoryContainer}>
-            <Text style={styles.categoryTitle}>{category}</Text>
-            <View style={styles.skillsContainer}>
-              {filteredSkills[category].map((skill, index) => (
-                <Text key={index} style={styles.skillBadge}>
-                  {skill}
-                </Text>
-              ))}
-            </View>
-          </View>
-        ))}
+      {/* Skills */}
+      <ScrollView
+        contentContainerStyle={styles.skillsContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        {skillsToRender.map(
+          (group, index) =>
+            group.skills.length > 0 && (
+              <View key={index} style={styles.categoryContainer}>
+                <Text style={styles.categoryTitle}>{group.category}</Text>
+                <View style={styles.skillTags}>
+                {group.skills.map((skill, idx) => {
+  const lowerCaseSearchTerm = searchTerm.toLowerCase();
+  const lowerCaseSkill = skill.toLowerCase();
+  const matchIndex = lowerCaseSkill.indexOf(lowerCaseSearchTerm);
+
+  if (matchIndex !== -1 && searchTerm.length > 0) {
+    // Split the skill into three parts: before, match, and after
+    const beforeMatch = skill.slice(0, matchIndex);
+    const matchText = skill.slice(matchIndex, matchIndex + searchTerm.length);
+    const afterMatch = skill.slice(matchIndex + searchTerm.length);
+
+    return (
+      <View key={idx} style={styles.skillBadge}>
+        <Text style={styles.skillText}>
+          {beforeMatch}
+          <Text style={styles.highlightedText}>{matchText}</Text>
+          {afterMatch}
+        </Text>
+      </View>
+    );
+  } else {
+    // Render the skill normally if no match is found
+    return (
+      <View key={idx} style={styles.skillBadge}>
+        <Text style={styles.skillText}>{skill}</Text>
+      </View>
+    );
+  }
+})}
+
+                </View>
+              </View>
+            )
+        )}
       </ScrollView>
     </LinearGradient>
   );
@@ -224,55 +206,69 @@ export default function SkillsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 15,
-    paddingVertical: 10,
+    paddingHorizontal: 10,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 10 : 20,
+  },
+  searchBarContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+    paddingHorizontal: 10,
   },
   searchBar: {
-    backgroundColor: '#1E1E1E',
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 20,
-    color: '#FFFFFF',
-    fontSize: 16,
-    elevation: 2,
+    flex: 1,
+    height: 36,
+    backgroundColor: '#333',
+    borderRadius: 20,
+    paddingHorizontal: 15,
+    color: '#FFF',
+    fontSize: 14,
+    borderColor: '#1DB954',
+    borderWidth: 1,
   },
-  hoorayMessage: {
+  clearButton: {
     position: 'absolute',
-    top: 100,
-    alignSelf: 'center',
-    backgroundColor: '#333333',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 25,
-    elevation: 5,
-  },
-  hoorayText: {
-    color: '#1DB954',
-    fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  categoryContainer: {
-    marginBottom: 25,
-  },
-  categoryTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1DB954',
-    marginBottom: 10,
+    right: 15,
   },
   skillsContainer: {
+    paddingBottom: 20,
+  },
+  categoryContainer: {
+    marginBottom: 20,
+  },
+  categoryTitle: {
+    color: '#1DB954',
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  skillTags: {
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
   skillBadge: {
-    backgroundColor: '#333333',
-    color: '#FFFFFF',
-    fontSize: 14,
+    backgroundColor: '#333',
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 20,
-    margin: 5,
-    elevation: 2,
+    marginRight: 10,
+    marginBottom: 10,
+    opacity: 0.8,
+    transform: [{ scale: 1 }],
+    transition: 'all 0.3s ease-in-out',
   },
+  highlightedSkill: {
+    backgroundColor: '#1DB954',
+    opacity: 1,
+    transform: [{ scale: 1.1 }],
+  },
+  skillText: {
+    color: '#FFF',
+    fontSize: 14,
+  },
+  highlightedText: {
+    color: '#1DB954', // Matches the green theme used throughout
+    fontWeight: 'bold',
+  },
+  
 });
