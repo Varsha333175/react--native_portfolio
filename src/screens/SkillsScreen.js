@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -21,6 +21,7 @@ export default function SkillsScreen() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredSkills, setFilteredSkills] = useState([]);
   const [matchedSkill, setMatchedSkill] = useState('');
+  const [message, setMessage] = useState('');
   const [messageOpacity] = useState(new Animated.Value(0));
   const [showConfetti, setShowConfetti] = useState(false);
   const glowAnim = useState(new Animated.Value(0))[0];
@@ -106,15 +107,12 @@ export default function SkillsScreen() {
       ],
     },
   ];
-  
 
   const calculateSimilarity = (input, skill) => {
     const inputLower = input.toLowerCase();
     const skillLower = skill.toLowerCase();
 
-    if (skillLower.includes(inputLower)) {
-      return 1;
-    }
+    if (skillLower.includes(inputLower)) return 1;
 
     let matches = 0;
     for (let i = 0; i < inputLower.length; i++) {
@@ -130,14 +128,16 @@ export default function SkillsScreen() {
   const handleSearch = (text) => {
     setSearchTerm(text);
 
-    if (text.trim().length === 0) {
+    const cleanedInput = text.trim().replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'); // Escape regex characters
+    if (cleanedInput.length < 2) {
       setFilteredSkills([]);
+      setMatchedSkill('');
+      setMessage('');
       setShowConfetti(false);
       return;
     }
 
-    const lowerCaseText = text.toLowerCase();
-
+    const lowerCaseText = cleanedInput.toLowerCase();
     const matchingSkills = skills.map((group) => ({
       category: group.category,
       skills: group.skills.filter((skill) =>
@@ -145,10 +145,12 @@ export default function SkillsScreen() {
       ),
     }));
 
-    setFilteredSkills(matchingSkills);
+    const allMatchingSkills = matchingSkills.flatMap((group) => group.skills);
 
-    if (matchingSkills.flatMap((group) => group.skills).length > 0) {
-      setMatchedSkill(text);
+    if (allMatchingSkills.length > 0) {
+      setFilteredSkills(matchingSkills);
+      setMatchedSkill(allMatchingSkills[0]);
+      setMessage('🎉 Hooray! I have that skill!');
 
       Animated.sequence([
         Animated.timing(messageOpacity, {
@@ -185,8 +187,35 @@ export default function SkillsScreen() {
         ])
       ).start();
     } else {
+      setFilteredSkills([]);
       setMatchedSkill('');
       setShowConfetti(false);
+
+      const similarSkills = skills.flatMap((group) =>
+        group.skills.filter((skill) => calculateSimilarity(lowerCaseText, skill) > 0.3)
+      );
+
+      if (similarSkills.length > 0) {
+        setMessage(
+          `I may not have "${text}" yet, but I’ve worked with similar skills: ${similarSkills.join(', ')}.`
+        );
+      } else {
+        setMessage(`Hmm... I don’t have "${text}" in my toolkit yet, but I’m always ready to learn!`);
+      }
+
+      Animated.sequence([
+        Animated.timing(messageOpacity, {
+          toValue: 1,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(messageOpacity, {
+          toValue: 0,
+          duration: 1500,
+          delay: 1500,
+          useNativeDriver: true,
+        }),
+      ]).start();
     }
   };
 
@@ -198,7 +227,9 @@ export default function SkillsScreen() {
   };
 
   const highlightMatchedText = (text, query) => {
-    const regex = new RegExp(`(${query})`, 'i');
+    if (!query) return text;
+
+    const regex = new RegExp(`(${query})`, 'i'); // Case-insensitive match
     const parts = text.split(regex);
 
     return parts.map((part, index) =>
@@ -276,8 +307,8 @@ export default function SkillsScreen() {
         )}
       </ScrollView>
 
-      {/* Message for Matched Skill */}
-      {matchedSkill && (
+      {/* Message for Matched or Unmatched Skill */}
+      {message && (
         <Animated.View
           style={[
             styles.messageContainer,
@@ -288,7 +319,7 @@ export default function SkillsScreen() {
             },
           ]}
         >
-          <Text style={styles.messageText}>🎉 Hooray! I have that skill!</Text>
+          <Text style={styles.messageText}>{message}</Text>
         </Animated.View>
       )}
 
@@ -383,5 +414,6 @@ const styles = StyleSheet.create({
     color: '#1DB954',
     fontSize: 16,
     fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
