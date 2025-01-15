@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, Animated } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, Animated, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import * as Speech from 'expo-speech';
 
 export default function HomeScreen() {
-  const [isPlaying, setIsPlaying] = useState(false); // Tracks if narration is playing
-  const [showModal, setShowModal] = useState(false); // Toggles the modal for "Read My Story"
-  const [visibleLines, setVisibleLines] = useState([]); // Lines currently displayed
-  const [currentLine, setCurrentLine] = useState(0); // Tracks the currently highlighted line
-  const opacityAnim = useState(new Animated.Value(0))[0]; // Animation for line opacity
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [visibleLines, setVisibleLines] = useState([]);
+  const [currentLine, setCurrentLine] = useState(0);
+  const opacityAnim = useState(new Animated.Value(0))[0];
 
   const storyLines = [
     "Imagine a world where technology not only solves problems but anticipates them.",
@@ -20,7 +20,6 @@ export default function HomeScreen() {
     "I believe in crafting software that isn’t just functional but transformative.",
   ];
 
-  // Function to handle narration (speech)
   const playNarration = (index = currentLine) => {
     setIsPlaying(true);
     if (index < storyLines.length) {
@@ -30,106 +29,106 @@ export default function HomeScreen() {
         language: 'en-IN',
         voice: 'Google UK English Female',
         onDone: () => {
-          setCurrentLine(index + 1); // Move to the next line
-          playNarration(index + 1); // Play the next line
+          setCurrentLine(index + 1);
+          playNarration(index + 1);
         },
       });
     } else {
-      setIsPlaying(false); // Stop narration if all lines are done
-      setCurrentLine(0); // Reset to the first line
+      setIsPlaying(false);
+      setCurrentLine(0);
     }
   };
 
   const pauseNarration = () => {
     setIsPlaying(false);
-    Speech.stop(); // Stop the narration
+    Speech.stop();
   };
 
   const togglePlayPause = () => {
     if (isPlaying) {
-      pauseNarration(); // Pause if playing
+      pauseNarration();
     } else {
-      playNarration(); // Start or resume narration
+      playNarration();
     }
   };
 
-  // Lyric-style animation for "Read My Story"
   const startReadingStory = () => {
-    setShowModal(true); // Show modal
-    setVisibleLines([]); // Reset visible lines
-    setCurrentLine(0); // Reset current line
-    displayStoryLine(0); // Start displaying lines
+    setShowModal(true);
+    setVisibleLines([]);
+    setCurrentLine(0);
+    displayStoryLine(0);
   };
 
   const displayStoryLine = (index) => {
     if (index < storyLines.length) {
-      setVisibleLines((prevLines) => [...prevLines, storyLines[index]]); // Add line to visible stack
-      setCurrentLine(index); // Highlight the current line
+      setVisibleLines((prevLines) => [...prevLines, storyLines[index]]);
+      setCurrentLine(index);
 
-      opacityAnim.setValue(0); // Reset opacity animation
+      opacityAnim.setValue(0);
       Animated.timing(opacityAnim, {
         toValue: 1,
         duration: 800,
         useNativeDriver: true,
       }).start(() => {
-        setTimeout(() => displayStoryLine(index + 1), 3000); // Move to the next line after a delay
+        setTimeout(() => displayStoryLine(index + 1), 3000);
       });
     }
   };
 
   return (
     <LinearGradient colors={['#1DB954', '#121212']} style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.title}>Hi, I'm Varsha Thondalapally</Text>
-        <Text style={styles.subtitle}>Creative Developer | Problem Solver | Innovator</Text>
-        <Text style={styles.about}>Building software that isn’t just functional but transformative.</Text>
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        showsVerticalScrollIndicator={false} // Hide the scroll bar
+      >
+        <View style={styles.content}>
+          <Text style={styles.title}>Hi, I'm Varsha Thondalapally</Text>
+          <Text style={styles.subtitle}>Creative Developer | Problem Solver | Innovator</Text>
+          <Text style={styles.about}>Building software that isn’t just functional but transformative.</Text>
 
-        {/* Listen to My Story Button */}
-        <TouchableOpacity style={styles.playPauseButton} onPress={togglePlayPause}>
-          <Ionicons
-            name={isPlaying ? 'pause-circle' : 'mic-circle'}
-            size={80}
-            color="#FFFFFF" // Spotify white icons
-          />
-          <Text style={styles.buttonLabel}>Listen to My Story</Text>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.playPauseButton} onPress={togglePlayPause}>
+            <Ionicons
+              name={isPlaying ? 'pause-circle' : 'mic-circle'}
+              size={80}
+              color="#FFFFFF"
+            />
+            <Text style={styles.buttonLabel}>Listen to My Story</Text>
+          </TouchableOpacity>
 
-        {/* Read My Story Button */}
-        <TouchableOpacity style={styles.secondaryButton} onPress={startReadingStory}>
-          <Text style={styles.secondaryButtonText}>Read My Story</Text>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.secondaryButton} onPress={startReadingStory}>
+            <Text style={styles.secondaryButtonText}>Read My Story</Text>
+          </TouchableOpacity>
 
-        {/* Modal for Lyric-Style Story */}
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={showModal}
-          onRequestClose={() => setShowModal(false)}
-        >
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <TouchableOpacity style={styles.closeButton} onPress={() => setShowModal(false)}>
-                <Ionicons name="close-circle" size={40} color="#1DB954" />
-              </TouchableOpacity>
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={showModal}
+            onRequestClose={() => setShowModal(false)}
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                <TouchableOpacity style={styles.closeButton} onPress={() => setShowModal(false)}>
+                  <Ionicons name="close-circle" size={40} color="#1DB954" />
+                </TouchableOpacity>
 
-              {/* Display all visible lines */}
-              <View style={styles.storyContainer}>
-                {visibleLines.map((line, index) => (
-                  <Text
-                    key={index}
-                    style={[
-                      styles.storyText,
-                      index === currentLine && styles.currentLine, // Highlight current line
-                    ]}
-                  >
-                    {line}
-                  </Text>
-                ))}
+                <View style={styles.storyContainer}>
+                  {visibleLines.map((line, index) => (
+                    <Text
+                      key={index}
+                      style={[
+                        styles.storyText,
+                        index === currentLine && styles.currentLine,
+                      ]}
+                    >
+                      {line}
+                    </Text>
+                  ))}
+                </View>
               </View>
             </View>
-          </View>
-        </Modal>
-      </View>
+          </Modal>
+        </View>
+      </ScrollView>
     </LinearGradient>
   );
 }
@@ -140,9 +139,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  content: {
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 20,
+  },
+  content: {
+    alignItems: 'center',
+    paddingVertical: 20,
   },
   title: {
     color: '#FFFFFF',
@@ -215,7 +220,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   currentLine: {
-    color: '#1DB954', // Highlighted color for the current line
+    color: '#1DB954',
     fontWeight: 'bold',
   },
 });

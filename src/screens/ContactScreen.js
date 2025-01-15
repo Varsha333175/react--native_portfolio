@@ -63,17 +63,17 @@ export default function ContactScreen() {
           <ContactItem
             icon="logo-linkedin"
             label="LinkedIn"
-            onPress={() => openLink('https://www.linkedin.com/')}
+            onPress={() => openLink('https://www.linkedin.com/in/varshase/')}
           />
           <ContactItem
             icon="logo-github"
             label="GitHub"
-            onPress={() => openLink('https://github.com/')}
+            onPress={() => openLink('https://github.com/Varsha333175')}
           />
           <ContactItem
             icon="mail-outline"
             label="Email Me"
-            onPress={() => openLink('mailto:your-email@example.com')}
+            onPress={() => openLink('mailto:vreddy012025@gmail.com')}
           />
         </View>
       </ScrollView>
@@ -112,17 +112,17 @@ export default function ContactScreen() {
             <ContactItem
               icon="logo-linkedin"
               label="LinkedIn"
-              onPress={() => openLink('https://www.linkedin.com/')}
+              onPress={() => openLink('https://www.linkedin.com/in/varshase/')}
             />
             <ContactItem
               icon="logo-github"
               label="GitHub"
-              onPress={() => openLink('https://github.com/')}
+              onPress={() => openLink('https://github.com/Varsha333175')}
             />
             <ContactItem
               icon="mail-outline"
               label="Email Me"
-              onPress={() => openLink('mailto:your-email@example.com')}
+              onPress={() => openLink('mailto:vreddy012025@gmail.com')}
             />
           </View>
         </ScrollView>
@@ -160,17 +160,17 @@ export default function ContactScreen() {
         <ContactItem
           icon="logo-linkedin"
           label="LinkedIn"
-          onPress={() => openLink('https://www.linkedin.com/')}
+          onPress={() => openLink('https://www.linkedin.com/in/varshase/')}
         />
         <ContactItem
           icon="logo-github"
           label="GitHub"
-          onPress={() => openLink('https://github.com/')}
+          onPress={() => openLink('https://github.com/Varsha333175')}
         />
         <ContactItem
           icon="mail-outline"
           label="Email Me"
-          onPress={() => openLink('mailto:your-email@example.com')}
+          onPress={() => openLink('mailto:vreddy012025@gmail.com')}
         />
       </View>
     </View>
