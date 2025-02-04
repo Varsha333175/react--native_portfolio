@@ -24,10 +24,15 @@ export default function BottomTabNavigator() {
               iconName = focused ? 'folder' : 'folder-outline';
             } else if (route.name === 'Skills') {
               iconName = focused ? 'flash' : 'flash-outline';
-            } else if (route.name === 'Contact') {
+            
+            } else if (route.name === 'Work Exp') {
+              iconName = focused ? 'briefcase' : 'briefcase-outline';
+            }
+            
+            else if (route.name === 'Contact') {
               iconName = focused ? 'person' : 'person-outline';
             }
-
+            
             return <Ionicons name={iconName} size={size} color={color} />;
           },
           tabBarActiveTintColor: '#1DB954',
@@ -41,8 +46,8 @@ export default function BottomTabNavigator() {
         <Tab.Screen name="Home" component={HomeScreen} />
         <Tab.Screen name="Projects" component={ProjectsScreen} />
         <Tab.Screen name="Skills" component={SkillsScreen} />
-        <Tab.Screen name="Contact" component={ContactScreen} />
         {<Tab.Screen name="Work Exp" component={WorkScreen} />}
+        <Tab.Screen name="Contact" component={ContactScreen} />        
       </Tab.Navigator>
     </NavigationContainer>
   );
