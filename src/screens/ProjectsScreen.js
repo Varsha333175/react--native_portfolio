@@ -1,81 +1,80 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, FlatList, Image, Dimensions } from 'react-native';
+import React, { useState, useRef } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Dimensions,
+  Image,
+  Modal,
+  Platform,
+} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Video } from 'expo-av';
 import { Ionicons } from '@expo/vector-icons';
+import Swiper from 'react-native-swiper';
+import { Video } from 'expo-av';
 
-// Importing local assets
-import ShowcaseVideo from '../assets/React Native Portfolio Showcase.mp4';
-import WeatherVideo from '../assets/Weather Insights Revealed.mp4';
-import ShowcaseThumbnail from '../assets/portfolio thumbnail.png';
-import WeatherThumbnail from '../assets/strom.png';
+const { width, height } = Dimensions.get('window');
 
 const projects = [
   {
     id: '1',
     title: 'React Native Portfolio Showcase',
-    thumbnail: ShowcaseThumbnail,
-    videoUrl: ShowcaseVideo,
+    thumbnail: require('../assets/portfolio-thumbnail.png'),
+    videoUrl: require('../assets/React-Native-Portfolio-Showcase.mp4'),
   },
   {
     id: '2',
     title: 'Weather Insights Revealed',
-    thumbnail: WeatherThumbnail,
-    videoUrl: WeatherVideo,
+    thumbnail: require('../assets/storm.png'),
+    videoUrl: require('../assets/Weather-Insights-Revealed.mp4'),
   },
 ];
 
 export default function ProjectsScreen() {
   const [selectedProject, setSelectedProject] = useState(null);
-  const [numColumns, setNumColumns] = useState(2);
-  const [listKey, setListKey] = useState('grid-2'); // Force re-render when columns change
-  const screenWidth = Dimensions.get('window').width;
+  const videoRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
 
-  useEffect(() => {
-    const updateLayout = () => {
-      const newNumColumns = screenWidth > 768 ? 2 : 1; // 2 columns for large screens, 1 for mobile
-      if (newNumColumns !== numColumns) {
-        setNumColumns(newNumColumns);
-        setListKey(`grid-${newNumColumns}`); // Force re-render
+  // Function to toggle Play/Pause
+  const togglePlayback = async () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        await videoRef.current.pauseAsync();
+      } else {
+        await videoRef.current.playAsync();
       }
-    };
+      setIsPlaying(!isPlaying);
+    }
+  };
 
-    const subscription = Dimensions.addEventListener('change', updateLayout);
-    return () => subscription?.remove(); // Cleanup properly
-  }, [numColumns]);
+  // Function to seek forward/backward
+  const seek = async (direction) => {
+    if (videoRef.current) {
+      const status = await videoRef.current.getStatusAsync();
+      if (status?.positionMillis) {
+        let newPosition = status.positionMillis + direction * 10000; // Move by 10 seconds
+        await videoRef.current.setPositionAsync(newPosition);
+      }
+    }
+  };
 
   return (
     <LinearGradient colors={['#1DB954', '#121212']} style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>My Projects</Text>
-      </View>
+      <Text style={styles.title}>My Projects</Text>
 
-      {/* View Wrapper to enable scrolling */}
-      <View style={{ flex: 1 }}>
-        <FlatList
-          key={listKey} // Force re-render when numColumns changes
-          data={projects}
-          numColumns={numColumns}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.flatListContainer}
-          showsVerticalScrollIndicator={false} // Hide scrollbar for clean UI
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={[
-                styles.card,
-                screenWidth < 768 ? styles.mobileCard : {}, // Adjust width for mobile
-              ]}
-              onPress={() => setSelectedProject(item)}
-            >
-              <Image source={item.thumbnail} style={styles.thumbnail} />
-              <Text style={styles.cardTitle}>{item.title}</Text>
+      <Swiper loop={false} showsPagination={true} activeDotColor="#1DB954" containerStyle={styles.swiperContainer}>
+        {projects.map((project) => (
+          <View key={project.id} style={styles.projectCard}>
+            <TouchableOpacity onPress={() => setSelectedProject(project)}>
+              <Image source={project.thumbnail} style={styles.thumbnail} />
+              <Text style={styles.projectTitle}>{project.title}</Text>
             </TouchableOpacity>
-          )}
-        />
-      </View>
+          </View>
+        ))}
+      </Swiper>
 
-      {/* Video Modal */}
+      {/* Modal for Video */}
       {selectedProject && (
         <Modal transparent animationType="slide" visible={!!selectedProject}>
           <View style={styles.modalContainer}>
@@ -83,13 +82,32 @@ export default function ProjectsScreen() {
               <Ionicons name="close-circle" size={40} color="#1DB954" />
             </TouchableOpacity>
 
+            {/* Video Component */}
             <Video
+              ref={videoRef}
               source={selectedProject.videoUrl}
               style={styles.video}
-              useNativeControls={true} // Ensures playback controls on web
+              useNativeControls={Platform.OS !== 'web'} // Use Native Controls on Mobile Only
               resizeMode="contain"
+              shouldPlay={false} // Prevents autoplay
               isLooping
             />
+
+            {/* Custom Controls for Web */}
+            {Platform.OS === 'web' && (
+              <View style={styles.controlsContainer}>
+                <TouchableOpacity onPress={() => seek(-1)}>
+                  <Ionicons name="play-back" size={40} color="white" />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={togglePlayback}>
+                  <Ionicons name={isPlaying ? 'pause-circle' : 'play-circle'} size={50} color="white" />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => seek(1)}>
+                  <Ionicons name="play-forward" size={40} color="white" />
+                </TouchableOpacity>
+              </View>
+            )}
+
             <Text style={styles.modalTitle}>{selectedProject.title}</Text>
           </View>
         </Modal>
@@ -101,46 +119,35 @@ export default function ProjectsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  header: {
-    paddingVertical: 30,
-    alignItems: 'center',
+    paddingVertical: 40,
   },
   title: {
     color: '#FFFFFF',
     fontSize: 32,
     fontWeight: 'bold',
     textAlign: 'center',
+    marginBottom: 20,
   },
-  flatListContainer: {
-    paddingBottom: 20,
-    justifyContent: 'center',
+  swiperContainer: {
+    height: height * 0.7,
   },
-  card: {
-    flex: 1, // Expands dynamically
-    maxWidth: 400, // Prevents oversized cards
-    backgroundColor: '#1E1E1E', // Dark theme
-    margin: 10,
+  projectCard: {
+    width: width * 0.85,
+    maxWidth: 450,
+    alignSelf: 'center',
+    backgroundColor: '#1E1E1E',
     borderRadius: 15,
-    padding: 15,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-  },
-  mobileCard: {
-    width: '90%', // Makes cards take up most of the screen width on mobile
-    alignSelf: 'center', // Ensures they are centered
+    padding: 20,
   },
   thumbnail: {
-    width: '100%', // Full width inside the card
-    height: 180, // Maintain aspect ratio
+    width: '100%',
+    height: height * 0.3,
     borderRadius: 10,
-    resizeMode: 'contain',
+    resizeMode: 'cover',
   },
-  cardTitle: {
+  projectTitle: {
     marginTop: 10,
-    fontSize: 16,
+    fontSize: 18,
     color: 'white',
     textAlign: 'center',
   },
@@ -163,9 +170,17 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   modalTitle: {
-    color: '#FFFFFF',
+    color: 'white',
     fontSize: 20,
     marginTop: 10,
   },
+  controlsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
+    gap: 20, // Adjusts spacing between controls
+  },
 });
+
 
