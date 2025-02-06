@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, Animated, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, Animated, ScrollView, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import * as Speech from 'expo-speech';
@@ -77,15 +77,30 @@ export default function HomeScreen() {
 
   return (
     <LinearGradient colors={['#1DB954', '#121212']} style={styles.container}>
-      <ScrollView
-        contentContainerStyle={styles.scrollContainer}
-        showsVerticalScrollIndicator={false} // Hide the scroll bar
-      >
+      <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         <View style={styles.content}>
-          <Text style={styles.title}>Hi, I'm Varsha Thondalapally</Text>
-          <Text style={styles.subtitle}>Creative Developer | Problem Solver | Innovator</Text>
-          <Text style={styles.about}>Building software that isn’t just functional but transformative.</Text>
 
+          {/* Avatar Image */}
+          <Image
+            source={require('../assets/my avatar.webp')} // Adjust the path if necessary
+            style={styles.avatar}
+          />
+
+          {/* Name */}
+          <Text style={styles.title}>Hi, I'm Varsha Thondalapally</Text>
+
+          {/* LinkedIn-Style Headline */}
+          <Text style={styles.headline}>
+            🚀 Full-Stack Developer | AI & Cloud Enthusiast | Scalable Systems & Intuitive UX | Building Future-Ready Tech
+          </Text>
+
+          {/* Tagline */}
+          <Text style={styles.tagline}>
+            I grew up questioning how things work 🤔—now, I build systems that answer before you even ask ⚡. 
+            I turn chaos into structure 🏗️, problems into opportunities 🚀, and ideas into products that actually make a difference 🌍.
+          </Text>
+
+          {/* Listen to My Story Button */}
           <TouchableOpacity style={styles.playPauseButton} onPress={togglePlayPause}>
             <Ionicons
               name={isPlaying ? 'pause-circle' : 'mic-circle'}
@@ -95,6 +110,7 @@ export default function HomeScreen() {
             <Text style={styles.buttonLabel}>Listen to My Story</Text>
           </TouchableOpacity>
 
+          {/* Read My Story Button */}
           <TouchableOpacity style={styles.secondaryButton} onPress={startReadingStory}>
             <Text style={styles.secondaryButtonText}>Read My Story</Text>
           </TouchableOpacity>
@@ -149,6 +165,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 20,
   },
+  avatar: {
+    width: 160,  // Increased size
+    height: 160, // Increased size
+    borderRadius: 80, // Keeps it circular
+    marginBottom: 20, // Slightly more spacing from text
+    borderWidth: 4,
+    borderColor: '#1DB954',
+    shadowColor: '#000',  // Subtle shadow effect
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 5, // Shadow for Android
+  },
   title: {
     color: '#FFFFFF',
     fontSize: 36,
@@ -156,13 +185,14 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: 'center',
   },
-  subtitle: {
-    color: '#CCCCCC',
-    fontSize: 18,
+  headline: {
+    color: '#1DB954',
+    fontSize: 16,
     textAlign: 'center',
+    fontWeight: 'bold',
     marginBottom: 10,
   },
-  about: {
+  tagline: {
     color: '#FFFFFF',
     fontSize: 16,
     textAlign: 'center',
