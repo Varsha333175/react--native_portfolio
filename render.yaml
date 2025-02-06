@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: portfolio-app
+    env: static
+    buildCommand: npm install && npx expo export:web
+    staticPublishPath: web-build
+    envVars:
+      - key: NODE_VERSION
+        value: 18
