@@ -87,7 +87,7 @@ export default function HomeScreen() {
           />
 
           {/* Name */}
-          <Text style={styles.title}>Hi, I'm Varsha Thondalapally</Text>
+          <Text style={styles.title}>Hi, I'm Varsha </Text>
 
           {/* LinkedIn-Style Headline */}
           <Text style={styles.headline}>
