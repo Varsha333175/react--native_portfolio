@@ -3,6 +3,11 @@ import { View, Text, StyleSheet, TouchableOpacity, Modal, Animated, ScrollView, 
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import * as Speech from 'expo-speech';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
+import { Platform, Linking } from 'react-native';
+import ReactGA from 'react-ga4';
+
 
 export default function HomeScreen() {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -75,6 +80,46 @@ export default function HomeScreen() {
     }
   };
 
+
+  const downloadResume = async () => {
+    const resumeURL = '/resume.pdf'; // Path in the public folder
+  
+    if (Platform.OS === 'web') {
+      // Open the resume in a new tab
+      window.open(resumeURL, '_blank');
+  
+      // Ask user if they want to download
+      setTimeout(() => {
+        const confirmDownload = window.confirm("Do you want to download the resume?");
+        if (confirmDownload) {
+          const anchor = document.createElement('a');
+          anchor.href = resumeURL;
+          anchor.download = 'resume.pdf';
+          document.body.appendChild(anchor);
+          anchor.click();
+          document.body.removeChild(anchor);
+  
+          // Track download event in Google Analytics
+          ReactGA.event({
+            category: 'Resume',
+            action: 'Download',
+            label: 'User downloaded resume from web',
+          });
+        }
+      }, 2000);
+    } else {
+      // Mobile: Open URL in browser (you can also use Linking)
+      Linking.openURL(resumeURL);
+  
+      // Track analytics immediately
+      ReactGA.event({
+        category: 'Resume',
+        action: 'Open',
+        label: 'User opened resume on mobile',
+      });
+    }
+  };
+  
   return (
     <LinearGradient colors={['#1DB954', '#121212']} style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
@@ -113,6 +158,12 @@ export default function HomeScreen() {
           {/* Read My Story Button */}
           <TouchableOpacity style={styles.secondaryButton} onPress={startReadingStory}>
             <Text style={styles.secondaryButtonText}>Read My Story</Text>
+          </TouchableOpacity>
+
+          {/* Download Resume Button */}
+          <TouchableOpacity style={styles.downloadButton} onPress={downloadResume}>
+            <Ionicons name="download" size={24} color="#FFFFFF" />
+            <Text style={styles.downloadButtonText}>Download Resume</Text>
           </TouchableOpacity>
 
           <Modal
@@ -166,17 +217,17 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
   },
   avatar: {
-    width: 160,  // Increased size
-    height: 160, // Increased size
-    borderRadius: 80, // Keeps it circular
-    marginBottom: 20, // Slightly more spacing from text
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    marginBottom: 20,
     borderWidth: 4,
     borderColor: '#1DB954',
-    shadowColor: '#000',  // Subtle shadow effect
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 6,
-    elevation: 5, // Shadow for Android
+    elevation: 5,
   },
   title: {
     color: '#FFFFFF',
@@ -215,11 +266,28 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
     borderRadius: 50,
     elevation: 3,
+    marginTop: 10, // Adjusted margin to ensure proper spacing
   },
   secondaryButtonText: {
     color: '#1DB954',
     fontSize: 18,
     fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  downloadButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1DB954',
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 50,
+    marginTop: 20,
+  },
+  downloadButtonText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginLeft: 10,
   },
   modalContainer: {
     flex: 1,
@@ -254,3 +322,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+
